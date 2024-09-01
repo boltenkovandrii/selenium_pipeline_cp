@@ -1,0 +1,12 @@
+FROM docker:dind
+
+RUN apk update and
+
+RUN apk add curl
+RUN apk add openjdk17
+
+RUN apk add tzdata
+ENV TZ="Europe/Amsterdam"
+RUN date
+
+ENV DOCKER_API_VERSION='1.43'

@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+    id 'io.qameta.allure' version '2.12.0'
+}
+
+group = 'com.andrii.test'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0-M2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.0-M2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.0-M2'
+
+    testImplementation 'org.seleniumhq.selenium:selenium-java:4.23.1'
+
+    testImplementation 'org.assertj:assertj-core:3.26.3'
+
+
+    testImplementation 'commons-configuration:commons-configuration:1.10'
+
+    testImplementation 'ch.qos.logback:logback-classic:1.5.6'
+
+    testImplementation 'io.qameta.allure:allure-junit5:2.21.0'
+
+}
+
+tasks.withType(JavaCompile).configureEach  {
+    options.encoding = 'UTF-8' //To handle non-UTF characters
+}
+
+test {
+
+    testLogging.showStandardStreams = true //to see standard output in tests
+
+    useJUnitPlatform(){
+        includeEngines 'junit-jupiter'
+    //            includeTags 'current'
+        includeTags System.getProperty("includeTags") ? System.getProperty("includeTags") : 'regression'
+        excludeTags 'WIP'
+    }
+
+    // Make failing tests do not fail the task
+    ignoreFailures = true
+
+    systemProperties = System.getProperties() as Map<String, ?>
+    systemProperties.put('junit.jupiter.extensions.autodetection.enabled' , true)
+    systemProperties.put('junit.jupiter.execution.parallel.enabled' , true)
+    systemProperties.put('junit.jupiter.execution.parallel.mode.default', 'same_thread')
+    systemProperties.put('junit.jupiter.execution.parallel.mode.classes.default', 'concurrent')
+    systemProperties.put('junit.jupiter.execution.parallel.config.strategy', 'custom')
+    systemProperties.put('junit.jupiter.execution.parallel.config.custom.class', 'com.andrii.test.base.ParallelExecutionStrategy')
+
+
+}
+
+allure {
+    version = '2.21.0'  // The version of Allure Commandline tool
+}

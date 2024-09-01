@@ -1,93 +1,41 @@
-# selenium_pipeline
+# What is this?
+Just a small demo project to show how some tools work together:
+- Java (Java 17 to be exact, although it can be updated relatively easily to use other versions)
+- Junit5
+- Selenium 
+- Selenium hub (only set up for pipeline)
+- Allure report
+- Gitlab CI\CD pipelines
 
+### But what does it do?
+With this project you can run some of the provided tests on https://www.wikipedia.org/ both on your local machine and on GitLab.
+The tests themselves are not very meaningful and are provided for demonstration purposes only.
 
+# Project structure:
+Most important files, packages and directories are:
+- **java/com/andrii/test/tests** - package with test scenarios
+- **java/com/andrii/test/pages** - package with PageObjects
+- **src/test/java/com/andrii/test/base** - various utility classes
+- **src/test/resources/drivers** directory for various browser drivers for various systems
+- **src/test/resources/config.properties** - configuration options for startup (although these options are often overridden by command line options)
+- **.gitlab-ci.*.yml** - pipeline configuration for the GitLab
+- **dockerfiles** directory for various docker files used in GitLab pipeline
 
-## Getting started
+# Running tests on local machine:
+- Import project with your IDE
+- Update browser driver(s) at **src/test/resources/drivers** to match your browser(s) version. Drivers from git are probably outdated even if present.
+- Update parameters at **src/test/resources/config.properties** especially **_browser_** and _**firefoxPath**_ (if you use Firefox). This step is optional and parameters can be overridden by command line options.
+- (Optional) Define the scope of the tests you want to run by annotating them with **@Tag("YOUR_TAG")**. By default, tests are run for **@Tag("regression")**, and all tests will be run.
+- Run tests with command line. Sample commands: 
+- [ ] **./gradlew clean test allureReport** - simplest command: all tests will be run according to parameters from **config.properties**
+- [ ] **./gradlew clean test -DincludeTags=current -Dbrowser=edge -Dthreads=2 allureReport** - only tests annotated with **@Tag("current")** will be run, using MS Edge. Tests will be run in 2 threads.
+- After run is finished, you can find generated report **build/reports/allure-report/allureReport**. To see it from IDE just use 'open in browser' option on index.html file from this directory. 
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/boltenkovandrii/selenium_pipeline.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/boltenkovandrii/selenium_pipeline/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+# Running tests from GitLab
+- Go to Build->Pipelines and press "Run pipeline" button.
+- Set variables for the build and press "Run pipeline"
+- If you are running tests for the first time, you need to Docker images (after creating the images, they are saved 
+in the local registry under Deploy->Container Registry and will be used for the next runs). So run all jobs under "build" section.
+- When all needed images are ready, run "tests-run" job, which actually starts the tests.
+- To see test results after job is finished, open job, click "Browse" and then "public". "Downloads" directory contains 
+files, downloaded during the test run and "allureReport" - report itself  (just click index.html to view it).

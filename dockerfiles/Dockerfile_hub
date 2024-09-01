@@ -1,0 +1,10 @@
+FROM selenium/hub:4.23.1
+
+RUN whoami
+USER root
+
+RUN apt-get install tzdata
+ENV TZ="Europe/Amsterdam"
+
+USER seluser
+RUN whoami

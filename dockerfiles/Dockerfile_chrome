@@ -1,0 +1,10 @@
+FROM selenium/node-chrome:127.0
+
+RUN whoami
+USER root
+
+RUN apt-get install tzdata
+ENV TZ="Europe/Amsterdam"
+
+USER seluser
+RUN whoami
