@@ -17,7 +17,7 @@ public class DownloadFileTest extends TestBase {
     @Test
     @Tag("current")
     @Tag("regression")
-    @DisplayName("Download pdf file from WikiMwdia")
+    @DisplayName("Download pdf file from WikiMedia")
     public void downloadPdfFileTest() {
 
         getData().getDriver().navigate().to(TestConfig.getConfiguration().getString("baseUrlWiki"));
