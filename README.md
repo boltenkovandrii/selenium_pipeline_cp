@@ -34,7 +34,7 @@ Most important files, packages and directories are:
 # Running tests from GitLab
 - Go to Build->Pipelines and press "Run pipeline" button.
 - Set variables for the build and press "Run pipeline"
-- If you are running tests for the first time, you need to Docker images (after creating the images, they are saved 
+- If you are running tests for the first time, you need to build Docker images (after creating the images, they are saved 
 in the local registry under Deploy->Container Registry and will be used for the next runs). So run all jobs under "build" section.
 - When all needed images are ready, run "tests-run" job, which actually starts the tests.
 - To see test results after job is finished, open job, click "Browse" and then "public". "Downloads" directory contains 
