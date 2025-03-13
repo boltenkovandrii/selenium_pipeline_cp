@@ -8,13 +8,16 @@ import org.openqa.selenium.support.ui.Select;
 
 public class CommonsMainPage extends PageBase {
 
+    @FindBy(id="vector-main-menu-dropdown")
+    private WebElement mainMenu;
+
     @FindBy(id="mw-AnonymousI18N-picker")
     private WebElement languageSelect;
 
     @FindBy(id="searchInput")
     private  WebElement searchInput;
 
-    @FindBy(id="searchButton")
+    @FindBy(css="div.vector-header-end button")
     private  WebElement searchButton;
 
 
@@ -23,11 +26,12 @@ public class CommonsMainPage extends PageBase {
     }
 
     public void waitForLoadingHook(){
-        waitTilElementClickable(languageSelect);
+        waitTillElementClickable(mainMenu);
     }
 
 
     public CommonsMainPage selectLanguage(String language){
+        waitAndClick(mainMenu);
         Select searchLanguageSelect = new Select(this.languageSelect);
         searchLanguageSelect.selectByVisibleText(language);
         return new CommonsMainPage(data);

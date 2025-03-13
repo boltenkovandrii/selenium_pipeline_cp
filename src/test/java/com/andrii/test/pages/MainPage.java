@@ -35,7 +35,7 @@ public class MainPage extends PageBase{
     }
 
     public void waitForLoadingHook(){
-        waitTilElementClickable(searchInput);
+        waitTillElementClickable(searchInput);
     }
 
     public List<String> getFeaturedLanguages(){

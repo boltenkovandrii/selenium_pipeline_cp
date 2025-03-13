@@ -48,11 +48,11 @@ public abstract class PageBase {
         });
     }
 
-    public void waitTilElementClickable(WebElement element) {
-        waitTilElementClickable(element, Duration.ofSeconds(2));
+    public void waitTillElementClickable(WebElement element) {
+        waitTillElementClickable(element, Duration.ofSeconds(2));
     }
 
-    public void waitTilElementClickable(WebElement element, Duration duration) {
+    public void waitTillElementClickable(WebElement element, Duration duration) {
         WebDriverWait webDriverWait = new WebDriverWait(data.getDriver(), duration);
         webDriverWait.until(ExpectedConditions.elementToBeClickable(element));
     }
@@ -67,7 +67,7 @@ public abstract class PageBase {
 
     public void waitAndClick(final WebElement el) {
         try {
-            waitTilElementClickable(el);
+            waitTillElementClickable(el);
             el.click();
         } catch (WebDriverException e) {
             data.getEventListener().makeScreenshot(data.getDriver(), "Cannot click on element:" + el, e);
@@ -78,7 +78,7 @@ public abstract class PageBase {
     public void waitAndSendKeys(WebElement el, String text) {
         try{
             if (text != null) {
-                waitTilElementClickable(el);
+                waitTillElementClickable(el);
                 el.clear();
                 el.sendKeys(text);
             }

@@ -10,13 +10,13 @@ import java.util.List;
 
 public class CommonsSearchResultPage extends PageBase {
 
-    @FindBy(css="section[id ='cdx-other-3'] button[aria-labelledby*='filemime__textbox']")
+    @FindBy(css="section#v-3 button[aria-owns='filemime__listbox']")
     private WebElement otherMediaFileButton;
 
     @FindBy(xpath="//button/span[text()='Other Media']/..")
     private  WebElement otherMediaTab;
 
-    @FindBy(css="section[id ='cdx-other-3'] div.sdms-search-results h3 a")
+    @FindBy(css="section#v-3 div.sdms-search-results h3 a")
     private List<WebElement> otherMediaResultList;
 
     @FindBy(css="div.sdms-search-results__pending")
@@ -39,7 +39,7 @@ public class CommonsSearchResultPage extends PageBase {
     }
     
     public CommonsSearchResultPage openOtherMedia(){
-        waitTilElementClickable(otherMediaTab);
+        waitTillElementClickable(otherMediaTab);
         waitAndClick(otherMediaTab);
         return new CommonsSearchResultPage(data);
     }

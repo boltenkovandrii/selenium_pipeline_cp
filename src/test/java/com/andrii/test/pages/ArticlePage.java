@@ -26,7 +26,7 @@ public class ArticlePage extends PageBase{
     }
 
     public void waitForLoadingHook(){
-        waitTilElementClickable(header);
+        waitTillElementClickable(header);
     }
 
     public String getHeader(){
@@ -37,7 +37,7 @@ public class ArticlePage extends PageBase{
         WebElement link = data.getDriver().findElement(By.xpath("//a[text()='"+linkName+"']"));//selecting first suitable element
         scrollToElement(link);
         new Actions(data.getDriver()).moveToElement(link).perform();
-        waitTilElementClickable(popup);//waiting 0.5 sec for timeout
+        waitTillElementClickable(popup);//waiting 0.5 sec for timeout
         return this;
     }
 
