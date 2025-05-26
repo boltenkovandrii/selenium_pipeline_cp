@@ -1,6 +1,7 @@
 package com.andrii.test.base;
 
 import io.qameta.allure.Allure;
+import org.openqa.selenium.NoSuchElementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.openqa.selenium.*;
@@ -11,7 +12,6 @@ import org.openqa.selenium.support.events.WebDriverListener;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 
 
 public class EventListener implements WebDriverListener {
