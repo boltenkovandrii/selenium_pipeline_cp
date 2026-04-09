@@ -7,7 +7,7 @@ import org.openqa.selenium.support.FindBy;
 
 public class CommonsFilePage extends PageBase {
 
-    @FindBy(css="span[title='Download all sizes']")
+    @FindBy(css="a[title='Download all sizes']")
     private WebElement downloadButton;
 
     @FindBy(linkText="Full resolution")
