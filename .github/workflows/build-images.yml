@@ -29,22 +29,35 @@ permissions:
 
 
 jobs:
-
   prepare:
-    runs-on:
-      ubuntu-latest outputs:
-        image_tag:
-          ${{ steps.set_tag.outputs.image_tag }} steps:
-            - name:
-                Determine IMAGE_TAG id:
-                  set_tag run: | 
-                    if [ -n "${{ github.event.inputs['image-tag'] }}" ]; then echo "image_tag=${{ github.event.inputs['image-tag'] }}" >> $GITHUB_OUTPUT elif [ "${{ github.ref_name }}" = "main" ]; then echo "image_tag=latest" >> $GITHUB_OUTPUT else ref="${GITHUB_REF#refs/heads/}"; ref="${ref////-}" echo "image_tag=snapshot-${ref}" >> $GITHUB_OUTPUT fi
+    name: Prepare IMAGE_TAG
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.set_tag.outputs.image_tag }}
+    steps:
+      - name: Determine IMAGE_TAG
+        id: set_tag
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs['image-tag'] }}" ]; then
+            echo "image_tag=${{ github.event.inputs['image-tag'] }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            echo "image_tag=latest" >> $GITHUB_OUTPUT
+          else
+            ref="${GITHUB_REF#refs/heads/}"
+            ref="${ref//\//-}"
+            echo "image_tag=snapshot-${ref}" >> $GITHUB_OUTPUT
+          fi
+
   
+
 
   build-runner:
     name: Build runner image
     needs: prepare
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -70,6 +83,8 @@ jobs:
     name: Build hub image
     needs: prepare
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -95,6 +110,8 @@ jobs:
     name: Build chrome image
     needs: prepare
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -120,6 +137,8 @@ jobs:
     name: Build firefox image
     needs: prepare
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -145,6 +164,8 @@ jobs:
     name: Build edge image
     needs: prepare
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
