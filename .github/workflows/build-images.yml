@@ -16,16 +16,17 @@ permissions:
   contents: read
   packages: write
 
+env:
+  IMAGE_TAG: "${{
+    inputs.image-tag ||
+    (github.ref_name == 'main' && 'latest') ||
+    format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+  }}"
+
 jobs:
   build-runner:
     name: Build runner image
     runs-on: ubuntu-latest
-    env:
-      IMAGE_TAG: ${{
-        inputs.image-tag ||
-        (github.ref_name == 'main' && 'latest') ||
-        format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-    } }
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -50,12 +51,6 @@ jobs:
   build-hub:
     name: Build hub image
     runs-on: ubuntu-latest
-    env:
-        IMAGE_TAG: ${{
-          inputs.image-tag ||
-          (github.ref_name == 'main' && 'latest') ||
-          format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-    } }
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -80,12 +75,6 @@ jobs:
   build-chrome:
     name: Build chrome image
     runs-on: ubuntu-latest
-    env:
-      IMAGE_TAG: ${{
-        inputs.image-tag ||
-        (github.ref_name == 'main' && 'latest') ||
-        format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-    } }
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -110,12 +99,6 @@ jobs:
   build-firefox:
     name: Build firefox image
     runs-on: ubuntu-latest
-    env:
-      IMAGE_TAG: ${{
-        inputs.image-tag ||
-        (github.ref_name == 'main' && 'latest') ||
-        format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-    } }
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -140,12 +123,6 @@ jobs:
   build-edge:
     name: Build edge image
     runs-on: ubuntu-latest
-    env:
-      IMAGE_TAG: ${{
-        inputs.image-tag ||
-        (github.ref_name == 'main' && 'latest') ||
-        format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-    } }
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
