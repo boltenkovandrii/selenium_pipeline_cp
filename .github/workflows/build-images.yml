@@ -12,6 +12,13 @@ on:
     branches:
       - feature/*
 
+env:
+  IMAGE_TAG: ${{
+    inputs.image-tag ||
+    (github.ref_name == 'main' && 'latest') ||
+    format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+}}
+
 permissions:
   contents: read
   packages: write
