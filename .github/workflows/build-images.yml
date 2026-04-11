@@ -20,6 +20,12 @@ jobs:
   build-runner:
     name: Build runner image
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{
+        inputs.image-tag ||
+        (github.ref_name == 'main' && 'latest') ||
+        format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+    } }
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -33,12 +39,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push runner
-        env:
-          IMAGE_TAG: ${{
-            inputs.image-tag ||
-            (github.ref_name == 'main' && 'latest') ||
-            format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-        } }
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -50,6 +50,12 @@ jobs:
   build-hub:
     name: Build hub image
     runs-on: ubuntu-latest
+    env:
+        IMAGE_TAG: ${{
+          inputs.image-tag ||
+          (github.ref_name == 'main' && 'latest') ||
+          format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+    } }
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -63,12 +69,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push hub
-        env:
-          IMAGE_TAG: ${{
-            inputs.image-tag ||
-            (github.ref_name == 'main' && 'latest') ||
-            format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-        } }
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -80,6 +80,12 @@ jobs:
   build-chrome:
     name: Build chrome image
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{
+        inputs.image-tag ||
+        (github.ref_name == 'main' && 'latest') ||
+        format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+    } }
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -93,12 +99,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push chrome
-        env:
-          IMAGE_TAG: ${{
-            inputs.image-tag ||
-            (github.ref_name == 'main' && 'latest') ||
-            format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-        } }
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -110,6 +110,12 @@ jobs:
   build-firefox:
     name: Build firefox image
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{
+        inputs.image-tag ||
+        (github.ref_name == 'main' && 'latest') ||
+        format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+    } }
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -123,12 +129,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push firefox
-        env:
-          IMAGE_TAG: ${{
-            inputs.image-tag ||
-            (github.ref_name == 'main' && 'latest') ||
-            format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-        } }
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -140,6 +140,12 @@ jobs:
   build-edge:
     name: Build edge image
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{
+        inputs.image-tag ||
+        (github.ref_name == 'main' && 'latest') ||
+        format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+    } }
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -153,12 +159,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push edge
-        env:
-          IMAGE_TAG: ${{
-            inputs.image-tag ||
-            (github.ref_name == 'main' && 'latest') ||
-            format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-        } }
         uses: docker/build-push-action@v4
         with:
           context: .
