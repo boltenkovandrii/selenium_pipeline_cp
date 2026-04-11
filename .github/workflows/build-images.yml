@@ -16,12 +16,17 @@ permissions:
   contents: read
   packages: write
 
+
+#env:
+#  IMAGE_TAG: "${{
+#    inputs.image-tag ||
+#    (github.ref_name == 'main' && 'latest') ||
+#    format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+#  }}"
+
 env:
-  IMAGE_TAG: "${{
-    inputs.image-tag ||
-    (github.ref_name == 'main' && 'latest') ||
-    format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-  }}"
+  IMAGE_TAG: ${{ github.event.inputs['image-tag'] || (github.ref_name == 'main' && 'latest') || format('snapshot-{0}', replace(github.ref_name, '/', '-')) }}
+
 
 jobs:
   build-runner:
