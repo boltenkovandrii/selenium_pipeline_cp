@@ -45,7 +45,8 @@ jobs:
           context: .
           file: dockerfiles/Dockerfile_runner
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${{ github.event.inputs['image-tag'] }}
+#          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${{ github.event.inputs['image-tag'] }}
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${{ env.IMAGE_TAG }}
 
   build-hub:
     name: Build hub image
@@ -68,7 +69,8 @@ jobs:
           context: .
           file: dockerfiles/Dockerfile_hub
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ github.event.inputs['image-tag'] }}
+#          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ github.event.inputs['image-tag'] }}
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ env.IMAGE_TAG }}
 
   build-chrome:
     name: Build chrome image
@@ -91,7 +93,8 @@ jobs:
           context: .
           file: dockerfiles/Dockerfile_chrome
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ github.event.inputs['image-tag'] }}
+#          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ github.event.inputs['image-tag'] }}
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ env.IMAGE_TAG }}
 
   build-firefox:
     name: Build firefox image
@@ -114,7 +117,8 @@ jobs:
           context: .
           file: dockerfiles/Dockerfile_firefox
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ github.event.inputs['image-tag'] }}
+#          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ github.event.inputs['image-tag'] }}
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ env.IMAGE_TAG }}
 
   build-edge:
     name: Build edge image
@@ -137,4 +141,5 @@ jobs:
           context: .
           file: dockerfiles/Dockerfile_edge
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ github.event.inputs['image-tag'] }}
+#          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ github.event.inputs['image-tag'] }}
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ env.IMAGE_TAG }}
