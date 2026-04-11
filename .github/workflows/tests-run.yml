@@ -1,0 +1,109 @@
+name: Run tests with Selenium Grid
+
+on:
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Browser to use (chrome, firefox, edge)'
+        required: true
+        default: 'firefox'
+      threads:
+        description: 'Number of parallel browser nodes to run'
+        required: true
+        default: '2'
+      tags:
+        description: 'Test tag to include (overrides default)'
+        required: true
+        default: 'regression'
+      image-tag:
+        description: 'Tag of images to pull from ghcr'
+        required: true
+        default: 'latest'
+
+jobs:
+  run-tests:
+    name: Bring up grid, run Gradle tests, collect reports
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to ghcr
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y docker-compose
+
+      - name: Prepare Downloads dir
+        run: |
+          mkdir -p Downloads
+          chmod a+w Downloads
+
+      - name: Generate docker-compose.override.yml for GHCR images
+        run: |
+          cat > docker-compose.override.yml <<EOF
+          version: '3'
+          services:
+            selenium-hub:
+              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ github.event.inputs['image-tag'] }}
+            selenium-chrome:
+              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ github.event.inputs['image-tag'] }}
+            selenium-firefox:
+              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ github.event.inputs['image-tag'] }}
+            selenium-edge:
+              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ github.event.inputs['image-tag'] }}
+          EOF
+
+      - name: Start Selenium Grid
+        run: |
+          docker network create selenium-grid-network || true
+          docker-compose up --scale selenium-${{ github.event.inputs['browser'] }}=${{ github.event.inputs['threads'] }} -d
+
+      - name: Show running containers
+        run: docker ps --format "{{.Names}} {{.Image}}"
+
+      - name: Run Gradle tests
+        env:
+          DOWNLOADS_FOLDER: Downloads
+        run: |
+          chmod +x gradlew
+          ./gradlew -DuseGrid=true -Dbrowser=${{ github.event.inputs['browser'] }} -Dthreads=${{ github.event.inputs['threads'] }} -DincludeTags=${{ github.event.inputs['tags'] }} -Ddownloads=$DOWNLOADS_FOLDER clean test allureReport || true
+
+      - name: Collect container logs
+        run: |
+          mkdir -p logs
+          docker ps -a --format "{{.Names}}" | while read c; do docker logs "$c" > "logs/$c.log" || true; done || true
+
+      - name: Tear down
+        run: |
+          docker-compose down || true
+
+      - name: Prepare public artifacts
+        run: |
+          mkdir -p public/Downloads
+          mkdir -p public/allureReport
+          if [ -d build/reports/allure-report/allureReport ]; then cp -r build/reports/allure-report/allureReport/* public/allureReport/ || true; fi
+          if [ -d Downloads ]; then cp -r Downloads/* public/Downloads/ || true; fi
+          tar -czf public-archives.tar.gz public || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-artifacts
+          path: public-archives.tar.gz
+          retention-days: 3
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: container-logs
+          path: logs
+          retention-days: 3
