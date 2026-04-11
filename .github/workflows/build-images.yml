@@ -12,13 +12,6 @@ on:
     branches:
       - feature/*
 
-env:
-  IMAGE_TAG: ${{
-    inputs.image-tag ||
-    (github.ref_name == 'main' && 'latest') ||
-    format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-}}
-
 permissions:
   contents: read
   packages: write
@@ -40,6 +33,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push runner
+        env:
+          IMAGE_TAG: ${{
+            inputs.image-tag ||
+            (github.ref_name == 'main' && 'latest') ||
+            format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+        } }
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -64,6 +63,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push hub
+        env:
+          IMAGE_TAG: ${{
+            inputs.image-tag ||
+            (github.ref_name == 'main' && 'latest') ||
+            format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+        } }
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -88,6 +93,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push chrome
+        env:
+          IMAGE_TAG: ${{
+            inputs.image-tag ||
+            (github.ref_name == 'main' && 'latest') ||
+            format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+        } }
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -112,6 +123,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push firefox
+        env:
+          IMAGE_TAG: ${{
+            inputs.image-tag ||
+            (github.ref_name == 'main' && 'latest') ||
+            format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+        } }
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -136,6 +153,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push edge
+        env:
+          IMAGE_TAG: ${{
+            inputs.image-tag ||
+            (github.ref_name == 'main' && 'latest') ||
+            format('snapshot-{0}', replace(github.ref_name, '/', '-'))
+        } }
         uses: docker/build-push-action@v4
         with:
           context: .
