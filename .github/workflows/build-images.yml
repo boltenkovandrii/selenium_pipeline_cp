@@ -7,6 +7,10 @@ on:
         description: 'Tag to apply to built images'
         required: true
         default: 'latest'
+  #TODO: update
+  push:
+    branches:
+      - feature/*
 
 permissions:
   contents: read
