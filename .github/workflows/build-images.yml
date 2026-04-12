@@ -8,9 +8,9 @@ on:
         required: true
         default: 'latest'
   #TODO: update
-  push:
-    branches:
-      - feature/*
+#  push:
+#    branches:
+#      - feature/*
 
 permissions:
   contents: read

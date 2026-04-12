@@ -58,6 +58,7 @@ jobs:
           mkdir -p Downloads
           chmod a+w Downloads
 
+#should be rewritten
       - name: Generate docker-compose.override.yml for GHCR images
         run: |
           cat > docker-compose.override.yml <<EOF
@@ -76,7 +77,7 @@ jobs:
       - name: Start Selenium Grid
         run: |
           docker network create selenium-grid-network || true
-          docker-compose up --scale selenium-${{ env.BROWSER }}=${{ env.THREADS }} -d
+          docker-compose up -f docker-compose-gh.yml --scale selenium-${{ env.BROWSER }}=${{ env.THREADS }} -d
 
       - name: Show running containers
         run: docker ps --format "{{.Names}} {{.Image}}"
