@@ -24,6 +24,27 @@ on:
       - feature/*
 
 jobs:
+
+  prepare:
+    name: Prepare IMAGE_TAG
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.set_tag.outputs.image_tag }}
+    steps:
+      - name: Determine IMAGE_TAG
+        id: set_tag
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs['image-tag'] }}" ]; then
+            echo "image_tag=${{ github.event.inputs['image-tag'] }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            echo "image_tag=latest" >> $GITHUB_OUTPUT
+          else
+            ref="${GITHUB_REF#refs/heads/}"
+            ref="${ref//\//-}"
+            echo "image_tag=snapshot-${ref}" >> $GITHUB_OUTPUT
+          fi
+
   run-tests:
     name: Bring up grid, run Gradle tests, collect reports
     runs-on: ubuntu-latest
@@ -33,7 +54,8 @@ jobs:
       BROWSER: ${{ github.event.inputs.browser || 'firefox' }}
       THREADS: ${{ github.event.inputs.threads || 2 }}
       TAGS: ${{ github.event.inputs.tags || 'regression' }}
-      IMAGE_TAG: ${{ github.event.inputs.threads || 'snapshot' }}
+#      IMAGE_TAG: ${{ github.event.inputs.image-tag || 'snapshot' }}
+      IMAGE_TAG: ${{ env.image-tag }}
 
     steps:
       - uses: actions/checkout@v4
