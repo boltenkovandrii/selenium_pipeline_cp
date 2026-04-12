@@ -84,27 +84,26 @@ jobs:
           chmod a+w Downloads
 
 #should be rewritten
-      - name: Generate docker-compose.override.yml for GHCR images
-        run: |
-          cat > docker-compose.override.yml <<EOF
-          version: '3'
-          services:
-            selenium-hub:
-              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ env.IMAGE_TAG }}
-            selenium-chrome:
-              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ env.IMAGE_TAG }}
-            selenium-firefox:
-              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ env.IMAGE_TAG }}
-            selenium-edge:
-              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ env.IMAGE_TAG }}
-          EOF
+#      - name: Generate docker-compose.override.yml for GHCR images
+#        run: |
+#          cat > docker-compose.override.yml <<EOF
+#          version: '3'
+#          services:
+#            selenium-hub:
+#              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ env.IMAGE_TAG }}
+#            selenium-chrome:
+#              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ env.IMAGE_TAG }}
+#            selenium-firefox:
+#              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ env.IMAGE_TAG }}
+#            selenium-edge:
+#              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ env.IMAGE_TAG }}
+#          EOF
 
       - name: Start Selenium Grid
         env:
           REPO_OWNER: ${{ github.repository_owner }}
           REPO_NAME: ${{ github.event.repository.name }}
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
-#          DOWNLOADS_FOLDER: Downloads
         run: |
           docker network create selenium-grid-network || true
           docker-compose -f docker-compose-gh.yml up --scale selenium-${{ env.BROWSER }}=${{ env.THREADS }} -d
@@ -128,8 +127,11 @@ jobs:
         run: |
           docker-compose down || true
 
-      - name: Allure Report
-        uses: simple-elf/allure-report-action@v1
+      - name: Deploy Allure report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/reports/allure-report/allureReport
 
       - name: Prepare public artifacts
         run: |
