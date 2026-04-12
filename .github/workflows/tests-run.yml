@@ -77,7 +77,7 @@ jobs:
       - name: Start Selenium Grid
         run: |
           docker network create selenium-grid-network || true
-          docker-compose up -f docker-compose-gh.yml --scale selenium-${{ env.BROWSER }}=${{ env.THREADS }} -d
+          docker-compose -f docker-compose-gh.yml up --scale selenium-${{ env.BROWSER }}=${{ env.THREADS }} -d
 
       - name: Show running containers
         run: docker ps --format "{{.Names}} {{.Image}}"
