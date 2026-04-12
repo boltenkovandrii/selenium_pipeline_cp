@@ -54,8 +54,8 @@ jobs:
     name: Bring up grid, run Gradle tests, collect reports
     needs: prepare
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+#    permissions:
+#      contents: write
 
     env:
       # Use input if available, otherwise fallback
