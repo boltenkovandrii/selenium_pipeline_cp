@@ -1,6 +1,6 @@
 services:
   selenium-hub:
-    image: ghcr.io/${REPO_OWNER}/${REPO_NAME}-hub:${MAGE_TAG}
+    image: ghcr.io/${REPO_OWNER}/${REPO_NAME}-hub:$${IMAGE_TAG}
     container_name: selenium-hub
     ports:
       - "4444:4444"
@@ -8,7 +8,7 @@ services:
       - selenium-grid-network
 
   selenium-edge:
-    image: ghcr.io/${REPO_OWNER}/${REPO_NAME}-edge:${MAGE_TAG}
+    image: ghcr.io/${REPO_OWNER}/${REPO_NAME}-edge:$${IMAGE_TAG}
     shm_size: 2g
     volumes:
       - /dev/shm:/dev/shm
@@ -24,7 +24,7 @@ services:
     scale: 0
 
   selenium-chrome:
-    image: ghcr.io/${REPO_OWNER}/${REPO_NAME}-chrome:${MAGE_TAG}
+    image: ghcr.io/${REPO_OWNER}/${REPO_NAME}-chrome:$${IMAGE_TAG}
     shm_size: 2g
     volumes:
       - /dev/shm:/dev/shm
@@ -40,7 +40,7 @@ services:
     scale: 0
 
   selenium-firefox:
-    image: ghcr.io/${REPO_OWNER}/${REPO_NAME}-firefox:${MAGE_TAG}
+    image: ghcr.io/${REPO_OWNER}/${REPO_NAME}-firefox:$${IMAGE_TAG}
     shm_size: 2g
     volumes:
       - /dev/shm:/dev/shm
