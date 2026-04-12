@@ -54,7 +54,8 @@ public class WebDriverManager {
                 capabilities = options;
             }
 
-            final RemoteWebDriver remoteDriver = new RemoteWebDriver(new URL("http://docker:4444/wd/hub"), capabilities);
+//            final RemoteWebDriver remoteDriver = new RemoteWebDriver(new URL("http://docker:4444/wd/hub"), capabilities);
+            final RemoteWebDriver remoteDriver = new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), capabilities);
 
             remoteDriver.setFileDetector(new LocalFileDetector());
             webDriver = remoteDriver;

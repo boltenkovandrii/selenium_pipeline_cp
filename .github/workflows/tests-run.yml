@@ -14,7 +14,9 @@ on:
       tags:
         description: 'Test tag to include (overrides default)'
         required: true
-        default: 'regression'
+#TODO: update
+#        default: 'regression'
+        default: 'current'
       image-tag:
         description: 'Tag of images to pull from ghcr'
         required: true
