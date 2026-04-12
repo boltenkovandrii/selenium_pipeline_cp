@@ -55,6 +55,8 @@ services:
       - selenium-hub
     scale: 0
 
+volumes:
+  $DOWNLOADS_FOLDER:
 
 networks:
   selenium-grid-network:
