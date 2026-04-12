@@ -1,8 +1,8 @@
 name: Run tests with Selenium Grid
 
 # for uploading reports
-permissions:
-  contents: write
+#permissions:
+#  contents: write
 
 on:
   workflow_dispatch:
