@@ -54,8 +54,10 @@ jobs:
     name: Bring up grid, run Gradle tests, collect reports
     needs: prepare
     runs-on: ubuntu-latest
-#    permissions:
-#      contents: write
+    # TODO: only need write for publishing sites. Better create separate job for it
+    permissions:
+      contents: write
+      packages: read
 
     env:
       # Use input if available, otherwise fallback
@@ -87,22 +89,6 @@ jobs:
         run: |
           mkdir -p Downloads
           chmod a+w Downloads
-
-#should be rewritten
-#      - name: Generate docker-compose.override.yml for GHCR images
-#        run: |
-#          cat > docker-compose.override.yml <<EOF
-#          version: '3'
-#          services:
-#            selenium-hub:
-#              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ env.IMAGE_TAG }}
-#            selenium-chrome:
-#              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ env.IMAGE_TAG }}
-#            selenium-firefox:
-#              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ env.IMAGE_TAG }}
-#            selenium-edge:
-#              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ env.IMAGE_TAG }}
-#          EOF
 
       - name: Start Selenium Grid
         env:
