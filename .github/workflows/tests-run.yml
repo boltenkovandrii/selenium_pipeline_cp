@@ -19,11 +19,22 @@ on:
         description: 'Tag of images to pull from ghcr'
         required: true
         default: 'latest'
+  push:
+    branches:
+      - feature/*
 
 jobs:
   run-tests:
     name: Bring up grid, run Gradle tests, collect reports
     runs-on: ubuntu-latest
+
+    env:
+      # Use input if available, otherwise fallback
+      BROWSER: ${{ github.event.inputs.browser || 'firefox' }}
+      THREADS: ${{ github.event.inputs.threads || 2 }}
+      TAGS: ${{ github.event.inputs.tags || 'regression' }}
+      IMAGE_TAG: ${{ github.event.inputs.threads || 'snapshot' }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -53,19 +64,19 @@ jobs:
           version: '3'
           services:
             selenium-hub:
-              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ github.event.inputs['image-tag'] }}
+              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ env.IMAGE_TAG }}
             selenium-chrome:
-              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ github.event.inputs['image-tag'] }}
+              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ env.IMAGE_TAG }}
             selenium-firefox:
-              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ github.event.inputs['image-tag'] }}
+              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ env.IMAGE_TAG }}
             selenium-edge:
-              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ github.event.inputs['image-tag'] }}
+              image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ env.IMAGE_TAG }}
           EOF
 
       - name: Start Selenium Grid
         run: |
           docker network create selenium-grid-network || true
-          docker-compose up --scale selenium-${{ github.event.inputs['browser'] }}=${{ github.event.inputs['threads'] }} -d
+          docker-compose up --scale selenium-${{ env.BROWSER }}=${{ env.THREADS }} -d
 
       - name: Show running containers
         run: docker ps --format "{{.Names}} {{.Image}}"
@@ -75,7 +86,7 @@ jobs:
           DOWNLOADS_FOLDER: Downloads
         run: |
           chmod +x gradlew
-          ./gradlew -DuseGrid=true -Dbrowser=${{ github.event.inputs['browser'] }} -Dthreads=${{ github.event.inputs['threads'] }} -DincludeTags=${{ github.event.inputs['tags'] }} -Ddownloads=$DOWNLOADS_FOLDER clean test allureReport || true
+          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS}} -DincludeTags=${{ env.TAGS }} -Ddownloads=$DOWNLOADS_FOLDER clean test allureReport || true
 
       - name: Collect container logs
         run: |

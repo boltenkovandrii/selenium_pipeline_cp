@@ -17,17 +17,6 @@ permissions:
   packages: write
 
 
-#env:
-#  IMAGE_TAG: "${{
-#    inputs.image-tag ||
-#    (github.ref_name == 'main' && 'latest') ||
-#    format('snapshot-{0}', replace(github.ref_name, '/', '-'))
-#  }}"
-
-#env:
-#  IMAGE_TAG: ${{ github.event.inputs['image-tag'] || (github.ref_name == 'main' && 'latest') || format('snapshot-{0}', replace(github.ref_name, '/', '-')) }}
-
-
 jobs:
   prepare:
     name: Prepare IMAGE_TAG
@@ -76,7 +65,6 @@ jobs:
           context: .
           file: dockerfiles/Dockerfile_runner
           push: true
-#          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${{ github.event.inputs['image-tag'] }}
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${{ env.IMAGE_TAG }}
 
   build-hub:
@@ -103,7 +91,6 @@ jobs:
           context: .
           file: dockerfiles/Dockerfile_hub
           push: true
-#          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ github.event.inputs['image-tag'] }}
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ env.IMAGE_TAG }}
 
   build-chrome:
@@ -130,7 +117,6 @@ jobs:
           context: .
           file: dockerfiles/Dockerfile_chrome
           push: true
-#          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ github.event.inputs['image-tag'] }}
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ env.IMAGE_TAG }}
 
   build-firefox:
@@ -157,7 +143,6 @@ jobs:
           context: .
           file: dockerfiles/Dockerfile_firefox
           push: true
-#          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ github.event.inputs['image-tag'] }}
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ env.IMAGE_TAG }}
 
   build-edge:
@@ -184,5 +169,4 @@ jobs:
           context: .
           file: dockerfiles/Dockerfile_edge
           push: true
-#          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ github.event.inputs['image-tag'] }}
           tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ env.IMAGE_TAG }}
