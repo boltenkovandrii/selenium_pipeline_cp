@@ -57,6 +57,7 @@ services:
 
 volumes:
   Downloads:
+    external:true
 
 networks:
   selenium-grid-network:
