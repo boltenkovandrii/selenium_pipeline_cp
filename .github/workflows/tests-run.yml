@@ -47,6 +47,7 @@ jobs:
 
   run-tests:
     name: Bring up grid, run Gradle tests, collect reports
+    needs: prepare
     runs-on: ubuntu-latest
 
     env:
@@ -55,7 +56,7 @@ jobs:
       THREADS: ${{ github.event.inputs.threads || 2 }}
       TAGS: ${{ github.event.inputs.tags || 'regression' }}
 #      IMAGE_TAG: ${{ github.event.inputs.image-tag || 'snapshot' }}
-      IMAGE_TAG: ${{ env.image-tag }}
+      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
 
     steps:
       - uses: actions/checkout@v4
