@@ -56,7 +56,7 @@ services:
     scale: 0
 
 volumes:
-  $DOWNLOADS_FOLDER:
+  Downloads:
 
 networks:
   selenium-grid-network:
