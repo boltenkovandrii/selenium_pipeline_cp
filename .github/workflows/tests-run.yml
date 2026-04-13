@@ -29,6 +29,10 @@ jobs:
   prepare:
     name: Prepare IMAGE_TAG
     runs-on: ubuntu-latest
+    # need permission to upload report
+    permissions:
+      contents: write
+      packages: read
     outputs:
       image_tag: ${{ steps.set_tag.outputs.image_tag }}
     steps:
@@ -112,15 +116,15 @@ jobs:
           docker-compose down || true
 
 
-  collect-reports:
-    name: Collect reports
-    needs: run-tests
-    runs-on: ubuntu-latest
+#  collect-reports:
+#    name: Collect reports
+#    needs: run-tests
+#    runs-on: ubuntu-latest
     # TODO: only need write for publishing sites. Better create separate job for it
-    permissions:
-      contents: write
+#    permissions:
+#      contents: write
 
-    steps:
+#    steps:
       - name: Deploy Allure report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
