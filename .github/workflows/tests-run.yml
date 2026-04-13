@@ -29,10 +29,6 @@ jobs:
   prepare:
     name: Prepare IMAGE_TAG
     runs-on: ubuntu-latest
-    # need permission to upload report
-    permissions:
-      contents: write
-      packages: read
     outputs:
       image_tag: ${{ steps.set_tag.outputs.image_tag }}
     steps:
@@ -54,6 +50,10 @@ jobs:
     name: Bring up grid, run Gradle tests, collect reports
     needs: prepare
     runs-on: ubuntu-latest
+    # need permission to upload report
+    permissions:
+      contents: write
+      packages: read
 
     env:
       # Use input if available, otherwise fallback
