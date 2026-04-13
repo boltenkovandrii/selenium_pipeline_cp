@@ -50,10 +50,6 @@ jobs:
     name: Bring up grid, run Gradle tests, collect reports
     needs: prepare
     runs-on: ubuntu-latest
-    # TODO: only need write for publishing sites. Better create separate job for it
-#    permissions:
-#      contents: write
-#      packages: read
 
     env:
       # Use input if available, otherwise fallback
@@ -99,12 +95,12 @@ jobs:
 
       - name: Run Gradle tests
         #TODO: probably not needed as env variable
-        env:
-          DOWNLOADS_FOLDER: Downloads
+#        env:
+#          DOWNLOADS_FOLDER: Downloads
         run: |
           chmod +x gradlew
-          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS}} -DincludeTags=${{ env.TAGS }} -Ddownloads=$DOWNLOADS_FOLDER clean test allureReport || true
-#          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS}} -DincludeTags=${{ env.TAGS }} -Ddownloads=Downloads clean test allureReport || true
+#          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS}} -DincludeTags=${{ env.TAGS }} -Ddownloads=$DOWNLOADS_FOLDER clean test allureReport || true
+          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS}} -DincludeTags=${{ env.TAGS }} -Ddownloads="Downloads" clean test allureReport || true
 
       - name: Collect container logs
         run: |
@@ -153,3 +149,11 @@ jobs:
           name: container-logs
           path: logs
           retention-days: 3
+
+      - name: Publish artifacts
+        run: |
+          REPORT_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.ref_name }}/${{ github.run_id }}/"
+          
+          echo "## 🧪 Allure Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[Open Allure Report]($REPORT_URL)" >> $GITHUB_STEP_SUMMARY
