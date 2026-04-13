@@ -1,9 +1,5 @@
 name: Run tests with Selenium Grid
 
-# for uploading reports
-#permissions:
-#  contents: write
-
 on:
   workflow_dispatch:
     inputs:
@@ -55,16 +51,15 @@ jobs:
     needs: prepare
     runs-on: ubuntu-latest
     # TODO: only need write for publishing sites. Better create separate job for it
-    permissions:
-      contents: write
-      packages: read
+#    permissions:
+#      contents: write
+#      packages: read
 
     env:
       # Use input if available, otherwise fallback
       BROWSER: ${{ github.event.inputs.browser || 'firefox' }}
       THREADS: ${{ github.event.inputs.threads || 2 }}
       TAGS: ${{ github.event.inputs.tags || 'regression' }}
-#      IMAGE_TAG: ${{ github.event.inputs.image-tag || 'snapshot' }}
       IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
 
     steps:
@@ -103,11 +98,13 @@ jobs:
         run: docker ps --format "{{.Names}} {{.Image}}"
 
       - name: Run Gradle tests
-        env:
-          DOWNLOADS_FOLDER: Downloads
+        #TODO: probably not needed as env variable
+#        env:
+#          DOWNLOADS_FOLDER: Downloads
         run: |
           chmod +x gradlew
-          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS}} -DincludeTags=${{ env.TAGS }} -Ddownloads=$DOWNLOADS_FOLDER clean test allureReport || true
+#          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS}} -DincludeTags=${{ env.TAGS }} -Ddownloads=$DOWNLOADS_FOLDER clean test allureReport || true
+          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS}} -DincludeTags=${{ env.TAGS }} -Ddownloads=Downloads clean test allureReport || true
 
       - name: Collect container logs
         run: |
@@ -118,6 +115,16 @@ jobs:
         run: |
           docker-compose down || true
 
+
+  collect-reports:
+    name: Collect reports
+    needs: run-tests
+    runs-on: ubuntu-latest
+    # TODO: only need write for publishing sites. Better create separate job for it
+    permissions:
+      contents: write
+
+    steps:
       - name: Deploy Allure report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
