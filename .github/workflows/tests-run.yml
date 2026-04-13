@@ -59,7 +59,9 @@ jobs:
       # Use input if available, otherwise fallback
       BROWSER: ${{ github.event.inputs.browser || 'firefox' }}
       THREADS: ${{ github.event.inputs.threads || 2 }}
-      TAGS: ${{ github.event.inputs.tags || 'regression' }}
+      #TODO: return 'regression' after finishing building pipeline
+#      TAGS: ${{ github.event.inputs.tags || 'regression' }}
+      TAGS: ${{ github.event.inputs.tags || 'current' }}
       IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
 
     steps:
@@ -99,12 +101,13 @@ jobs:
 
       - name: Run Gradle tests
         #TODO: probably not needed as env variable
-        env:
-          DOWNLOADS_FOLDER: Downloads
+#        env:
+#          DOWNLOADS_FOLDER: Downloads
         run: |
           chmod +x gradlew
-          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS}} -DincludeTags=${{ env.TAGS }} -Ddownloads=$DOWNLOADS_FOLDER clean test allureReport || true
-#          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS}} -DincludeTags=${{ env.TAGS }} -Ddownloads="Downloads" clean test allureReport || true
+#          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS }} -DincludeTags=${{ env.TAGS }} -Ddownloads=$DOWNLOADS_FOLDER clean test allureReport || true
+#           ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS }} -DincludeTags=${{ env.TAGS }} -Ddownloads=Downloads clean test allureReport || true
+           ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test allureReport || true
 
       - name: Collect container logs
         run: |
