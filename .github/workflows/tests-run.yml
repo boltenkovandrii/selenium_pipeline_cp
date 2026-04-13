@@ -98,7 +98,7 @@ jobs:
         run: docker ps --format "{{.Names}} {{.Image}}"
 
       - name: Run Gradle tests
-        #TODO: probably not needed as env variable
+#TODO: probably not needed as env variable
 #        env:
 #          DOWNLOADS_FOLDER: Downloads
         run: |
