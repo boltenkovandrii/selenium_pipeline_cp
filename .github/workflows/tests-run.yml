@@ -97,7 +97,8 @@ jobs:
           docker-compose -f docker-compose-gh.yml up --scale selenium-${{ env.BROWSER }}=${{ env.THREADS }} -d
 
       - name: Show running containers
-        run: docker ps --format "{{.Names}} {{.Image}}"
+#        run: docker ps --format "{{.Names}} {{.Image}}"
+        run: docker ps --format '{{.Names}} {{.Image}}'
 
       - name: Run Gradle tests
         #TODO: probably not needed as env variable
