@@ -107,8 +107,14 @@ jobs:
         run: |
           chmod +x gradlew
 #          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS }} -DincludeTags=${{ env.TAGS }} -Ddownloads=$DOWNLOADS_FOLDER clean test allureReport || true
-           ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS }} -DincludeTags=${{ env.TAGS }} -Ddownloads=Downloads clean test allureReport || true
+#           ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS }} -DincludeTags=${{ env.TAGS }} -Ddownloads=Downloads clean test allureReport || true
 #           ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test allureReport || true
+          ./gradlew -DuseGrid=true \
+            -Dbrowser=${{ env.BROWSER }} \
+            -Dthreads=${{ env.THREADS }} \
+            -DincludeTags=${{ env.TAGS }} \
+            -Ddownloads=Downloads \
+            clean test allureReport || true
 
       - name: Collect container logs
         run: |
