@@ -14,9 +14,7 @@ on:
       tags:
         description: 'Test tag to include (overrides default)'
         required: true
-#TODO: update
-#        default: 'regression'
-        default: 'current'
+        default: 'regression'
       image-tag:
         description: 'Tag of images to pull from ghcr'
         required: true
@@ -101,15 +99,9 @@ jobs:
           docker ps --format "{{.Names}} {{.Image}}"
 
       - name: Run Gradle tests
-        #TODO: probably not needed as env variable
-#        env:
-#          DOWNLOADS_FOLDER: Downloads
         run: |
           chmod +x gradlew
           ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test allureReport || true
-#          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS }} -DincludeTags=${{ env.TAGS }} -Ddownloads=$DOWNLOADS_FOLDER clean test allureReport || true
-#          ./gradlew -DuseGrid=true -Dbrowser=${{ env.BROWSER }} -Dthreads=${{ env.THREADS }} -DincludeTags=${{ env.TAGS }} -Ddownloads=Downloads clean test allureReport || true
-
 
       - name: Collect container logs
         run: |
@@ -120,16 +112,6 @@ jobs:
         run: |
           docker-compose down || true
 
-
-#  collect-reports:
-#    name: Collect reports
-#    needs: run-tests
-#    runs-on: ubuntu-latest
-    # TODO: only need write for publishing sites. Better create separate job for it
-#    permissions:
-#      contents: write
-
-#    steps:
       - name: Deploy Allure report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
