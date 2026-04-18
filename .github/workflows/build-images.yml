@@ -3,52 +3,158 @@ name: Build and push Docker images
 on:
   workflow_dispatch:
     inputs:
-      image-tag:
-        description: 'Tag to apply to built images'
+      branch:
+        description: 'Branch to checkout for Dockerfiles and build'
         required: true
-        default: 'latest'
-  #TODO: update
-#  push:
-#    branches:
-#      - feature/*
+        default: 'main'
+      build_runner:
+        description: 'Build runner image'
+        required: true
+        default: 'true'
+      base_runner_version:
+        description: 'Optional base image version for runner (docker). Leave empty to resolve latest'
+        required: false
+        default: ''
+      build_hub:
+        description: 'Build hub image'
+        required: true
+        default: 'true'
+      base_hub_version:
+        description: 'Optional base image version for hub (selenium/hub). Leave empty to resolve latest'
+        required: false
+        default: ''
+      build_chrome:
+        description: 'Build chrome image'
+        required: true
+        default: 'true'
+      base_chrome_version:
+        description: 'Optional base image version for chrome (selenium/node-chrome). Leave empty to resolve latest'
+        required: false
+        default: ''
+      build_firefox:
+        description: 'Build firefox image'
+        required: true
+        default: 'true'
+      base_firefox_version:
+        description: 'Optional base image version for firefox (selenium/node-firefox). Leave empty to resolve latest'
+        required: false
+        default: ''
+      build_edge:
+        description: 'Build edge image'
+        required: true
+        default: 'true'
+      base_edge_version:
+        description: 'Optional base image version for edge (selenium/node-edge). Leave empty to resolve latest'
+        required: false
+        default: ''
 
 permissions:
   contents: read
   packages: write
 
-
 jobs:
   prepare:
-    name: Prepare IMAGE_TAG
+    name: Resolve base versions
     runs-on: ubuntu-latest
     outputs:
-      image_tag: ${{ steps.set_tag.outputs.image_tag }}
+      runner_version: ${{ steps.set_versions.outputs.runner_version }}
+      runner_is_latest: ${{ steps.set_versions.outputs.runner_is_latest }}
+      hub_version: ${{ steps.set_versions.outputs.hub_version }}
+      hub_is_latest: ${{ steps.set_versions.outputs.hub_is_latest }}
+      chrome_version: ${{ steps.set_versions.outputs.chrome_version }}
+      chrome_is_latest: ${{ steps.set_versions.outputs.chrome_is_latest }}
+      firefox_version: ${{ steps.set_versions.outputs.firefox_version }}
+      firefox_is_latest: ${{ steps.set_versions.outputs.firefox_is_latest }}
+      edge_version: ${{ steps.set_versions.outputs.edge_version }}
+      edge_is_latest: ${{ steps.set_versions.outputs.edge_is_latest }}
     steps:
-      - name: Determine IMAGE_TAG
-        id: set_tag
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Resolve versions
+        id: set_versions
         shell: bash
         run: |
-          if [ -n "${{ github.event.inputs['image-tag'] }}" ]; then
-            echo "image_tag=${{ github.event.inputs['image-tag'] }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" = "main" ]; then
-            echo "image_tag=latest" >> $GITHUB_OUTPUT
+          set -euo pipefail
+          resolve_latest() {
+            repo="$1"
+            # Query Docker Hub tags and pick the highest semver-like tag
+            tag=$(curl -s "https://registry.hub.docker.com/v2/repositories/${repo}/tags?page_size=100" | jq -r '.results[].name' | grep -E '^[0-9]+(\.[0-9]+)*$' | sort -V | tail -n1)
+            if [ -z "$tag" ]; then
+              # fallback to 'latest' if no numeric tag found
+              tag=latest
+            fi
+            echo "$tag"
+          }
+
+          if [ -n "${{ github.event.inputs.base_runner_version }}" ]; then
+            runner_version="${{ github.event.inputs.base_runner_version }}"
+            runner_is_latest=false
           else
-            ref="${GITHUB_REF#refs/heads/}"
-            ref="${ref//\//-}"
-            echo "image_tag=snapshot-${ref}" >> $GITHUB_OUTPUT
+            runner_version=$(resolve_latest "library/docker")
+            runner_is_latest=true
           fi
 
-  
+          if [ -n "${{ github.event.inputs.base_hub_version }}" ]; then
+            hub_version="${{ github.event.inputs.base_hub_version }}"
+            hub_is_latest=false
+          else
+            hub_version=$(resolve_latest "selenium/hub")
+            hub_is_latest=true
+          fi
 
+          if [ -n "${{ github.event.inputs.base_chrome_version }}" ]; then
+            chrome_version="${{ github.event.inputs.base_chrome_version }}"
+            chrome_is_latest=false
+          else
+            chrome_version=$(resolve_latest "selenium/node-chrome")
+            chrome_is_latest=true
+          fi
+
+          if [ -n "${{ github.event.inputs.base_firefox_version }}" ]; then
+            firefox_version="${{ github.event.inputs.base_firefox_version }}"
+            firefox_is_latest=false
+          else
+            firefox_version=$(resolve_latest "selenium/node-firefox")
+            firefox_is_latest=true
+          fi
+
+          if [ -n "${{ github.event.inputs.base_edge_version }}" ]; then
+            edge_version="${{ github.event.inputs.base_edge_version }}"
+            edge_is_latest=false
+          else
+            edge_version=$(resolve_latest "selenium/node-edge")
+            edge_is_latest=true
+          fi
+
+          echo "runner_version=$runner_version" >> $GITHUB_OUTPUT
+          echo "runner_is_latest=$runner_is_latest" >> $GITHUB_OUTPUT
+          echo "hub_version=$hub_version" >> $GITHUB_OUTPUT
+          echo "hub_is_latest=$hub_is_latest" >> $GITHUB_OUTPUT
+          echo "chrome_version=$chrome_version" >> $GITHUB_OUTPUT
+          echo "chrome_is_latest=$chrome_is_latest" >> $GITHUB_OUTPUT
+          echo "firefox_version=$firefox_version" >> $GITHUB_OUTPUT
+          echo "firefox_is_latest=$firefox_is_latest" >> $GITHUB_OUTPUT
+          echo "edge_version=$edge_version" >> $GITHUB_OUTPUT
+          echo "edge_is_latest=$edge_is_latest" >> $GITHUB_OUTPUT
 
   build-runner:
+    if: ${{ github.event.inputs.build_runner == 'true' }}
     name: Build runner image
     needs: prepare
     runs-on: ubuntu-latest
     env:
-      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+      BASE_VERSION: ${{ needs.prepare.outputs.runner_version }}
+      IS_LATEST: ${{ needs.prepare.outputs.runner_is_latest }}
+      BRANCH: ${{ github.event.inputs.branch }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -59,22 +165,54 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute tags
+        id: tags
+        shell: bash
+        run: |
+          if [ "${BRANCH}" = "main" ]; then
+            primary="${BASE_VERSION}"
+            if [ "${IS_LATEST}" = "true" ]; then
+              secondary="latest"
+            else
+              secondary=""
+            fi
+          else
+            sanitized="${BRANCH//\//-}"
+            primary="${sanitized}-${BASE_VERSION}"
+            if [ "${IS_LATEST}" = "true" ]; then
+              secondary="${sanitized}-latest"
+            else
+              secondary=""
+            fi
+          fi
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${primary}" >> $GITHUB_OUTPUT
+          if [ -n "${secondary}" ]; then echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${secondary}" >> $GITHUB_OUTPUT; fi
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Build and push runner
         uses: docker/build-push-action@v4
         with:
           context: .
           file: dockerfiles/Dockerfile_runner
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${{ env.IMAGE_TAG }}
+          tags: ${{ steps.tags.outputs.tags }}
+          build-args: |
+            BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-hub:
+    if: ${{ github.event.inputs.build_hub == 'true' }}
     name: Build hub image
     needs: prepare
     runs-on: ubuntu-latest
     env:
-      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+      BASE_VERSION: ${{ needs.prepare.outputs.hub_version }}
+      IS_LATEST: ${{ needs.prepare.outputs.hub_is_latest }}
+      BRANCH: ${{ github.event.inputs.branch }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -85,48 +223,115 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute tags
+        id: tags
+        shell: bash
+        run: |
+          if [ "${BRANCH}" = "main" ]; then
+            primary="${BASE_VERSION}"
+            if [ "${IS_LATEST}" = "true" ]; then
+              secondary="latest"
+            else
+              secondary=""
+            fi
+          else
+            sanitized="${BRANCH//\//-}"
+            primary="${sanitized}-${BASE_VERSION}"
+            if [ "${IS_LATEST}" = "true" ]; then
+              secondary="${sanitized}-latest"
+            else
+              secondary=""
+            fi
+          fi
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${primary}" >> $GITHUB_OUTPUT
+          if [ -n "${secondary}" ]; then echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${secondary}" >> $GITHUB_OUTPUT; fi
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Build and push hub
         uses: docker/build-push-action@v4
         with:
           context: .
           file: dockerfiles/Dockerfile_hub
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ env.IMAGE_TAG }}
+          tags: ${{ steps.tags.outputs.tags }}
+          build-args: |
+            BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-chrome:
+    if: ${{ github.event.inputs.build_chrome == 'true' }}
     name: Build chrome image
     needs: prepare
     runs-on: ubuntu-latest
     env:
-      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+      BASE_VERSION: ${{ needs.prepare.outputs.chrome_version }}
+      IS_LATEST: ${{ needs.prepare.outputs.chrome_is_latest }}
+      BRANCH: ${{ github.event.inputs.branch }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            network=host
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute tags
+        id: tags
+        shell: bash
+        run: |
+          if [ "${BRANCH}" = "main" ]; then
+            primary="${BASE_VERSION}"
+            if [ "${IS_LATEST}" = "true" ]; then
+              secondary="latest"
+            else
+              secondary=""
+            fi
+          else
+            sanitized="${BRANCH//\//-}"
+            primary="${sanitized}-${BASE_VERSION}"
+            if [ "${IS_LATEST}" = "true" ]; then
+              secondary="${sanitized}-latest"
+            else
+              secondary=""
+            fi
+          fi
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${primary}" >> $GITHUB_OUTPUT
+          if [ -n "${secondary}" ]; then echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${secondary}" >> $GITHUB_OUTPUT; fi
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Build and push chrome
         uses: docker/build-push-action@v4
         with:
           context: .
           file: dockerfiles/Dockerfile_chrome
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ env.IMAGE_TAG }}
+          tags: ${{ steps.tags.outputs.tags }}
+          build-args: |
+            BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-firefox:
+    if: ${{ github.event.inputs.build_firefox == 'true' }}
     name: Build firefox image
     needs: prepare
     runs-on: ubuntu-latest
     env:
-      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+      BASE_VERSION: ${{ needs.prepare.outputs.firefox_version }}
+      IS_LATEST: ${{ needs.prepare.outputs.firefox_is_latest }}
+      BRANCH: ${{ github.event.inputs.branch }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -137,22 +342,54 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute tags
+        id: tags
+        shell: bash
+        run: |
+          if [ "${BRANCH}" = "main" ]; then
+            primary="${BASE_VERSION}"
+            if [ "${IS_LATEST}" = "true" ]; then
+              secondary="latest"
+            else
+              secondary=""
+            fi
+          else
+            sanitized="${BRANCH//\//-}"
+            primary="${sanitized}-${BASE_VERSION}"
+            if [ "${IS_LATEST}" = "true" ]; then
+              secondary="${sanitized}-latest"
+            else
+              secondary=""
+            fi
+          fi
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${primary}" >> $GITHUB_OUTPUT
+          if [ -n "${secondary}" ]; then echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${secondary}" >> $GITHUB_OUTPUT; fi
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Build and push firefox
         uses: docker/build-push-action@v4
         with:
           context: .
           file: dockerfiles/Dockerfile_firefox
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ env.IMAGE_TAG }}
+          tags: ${{ steps.tags.outputs.tags }}
+          build-args: |
+            BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-edge:
+    if: ${{ github.event.inputs.build_edge == 'true' }}
     name: Build edge image
     needs: prepare
     runs-on: ubuntu-latest
     env:
-      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+      BASE_VERSION: ${{ needs.prepare.outputs.edge_version }}
+      IS_LATEST: ${{ needs.prepare.outputs.edge_is_latest }}
+      BRANCH: ${{ github.event.inputs.branch }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -163,10 +400,37 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute tags
+        id: tags
+        shell: bash
+        run: |
+          if [ "${BRANCH}" = "main" ]; then
+            primary="${BASE_VERSION}"
+            if [ "${IS_LATEST}" = "true" ]; then
+              secondary="latest"
+            else
+              secondary=""
+            fi
+          else
+            sanitized="${BRANCH//\//-}"
+            primary="${sanitized}-${BASE_VERSION}"
+            if [ "${IS_LATEST}" = "true" ]; then
+              secondary="${sanitized}-latest"
+            else
+              secondary=""
+            fi
+          fi
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${primary}" >> $GITHUB_OUTPUT
+          if [ -n "${secondary}" ]; then echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${secondary}" >> $GITHUB_OUTPUT; fi
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Build and push edge
         uses: docker/build-push-action@v4
         with:
           context: .
           file: dockerfiles/Dockerfile_edge
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ env.IMAGE_TAG }}
+          tags: ${{ steps.tags.outputs.tags }}
+          build-args: |
+            BASE_VERSION=${{ env.BASE_VERSION }}
+
