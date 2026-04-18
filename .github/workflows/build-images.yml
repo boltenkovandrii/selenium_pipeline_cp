@@ -1,0 +1,172 @@
+name: Build and push Docker images
+
+on:
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        description: 'Tag to apply to built images'
+        required: true
+        default: 'latest'
+  #TODO: update
+#  push:
+#    branches:
+#      - feature/*
+
+permissions:
+  contents: read
+  packages: write
+
+
+jobs:
+  prepare:
+    name: Prepare IMAGE_TAG
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.set_tag.outputs.image_tag }}
+    steps:
+      - name: Determine IMAGE_TAG
+        id: set_tag
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs['image-tag'] }}" ]; then
+            echo "image_tag=${{ github.event.inputs['image-tag'] }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            echo "image_tag=latest" >> $GITHUB_OUTPUT
+          else
+            ref="${GITHUB_REF#refs/heads/}"
+            ref="${ref//\//-}"
+            echo "image_tag=snapshot-${ref}" >> $GITHUB_OUTPUT
+          fi
+
+  
+
+
+  build-runner:
+    name: Build runner image
+    needs: prepare
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push runner
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: dockerfiles/Dockerfile_runner
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${{ env.IMAGE_TAG }}
+
+  build-hub:
+    name: Build hub image
+    needs: prepare
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push hub
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: dockerfiles/Dockerfile_hub
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${{ env.IMAGE_TAG }}
+
+  build-chrome:
+    name: Build chrome image
+    needs: prepare
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push chrome
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: dockerfiles/Dockerfile_chrome
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${{ env.IMAGE_TAG }}
+
+  build-firefox:
+    name: Build firefox image
+    needs: prepare
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push firefox
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: dockerfiles/Dockerfile_firefox
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${{ env.IMAGE_TAG }}
+
+  build-edge:
+    name: Build edge image
+    needs: prepare
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push edge
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: dockerfiles/Dockerfile_edge
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${{ env.IMAGE_TAG }}
