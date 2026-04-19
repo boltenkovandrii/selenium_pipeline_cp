@@ -169,7 +169,7 @@ jobs:
           fi
           tags_list=""
           if [ "${IS_LATEST}" = "true" ]; then
-            tags_list="${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${BASE_VERSION} ${ { github.repository_owner }} /dummy"
+#            tags_list="${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${BASE_VERSION} ${ { github.repository_owner }} /dummy"
             # ensure two tags: version and latest
             echo "tags<<EOF" >> $GITHUB_OUTPUT
             echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${BASE_VERSION}" >> $GITHUB_OUTPUT
