@@ -10,25 +10,20 @@ on:
       # Provide 'latest' (default) to build using the highest base image version;
       # provide specific version like '127.0' to build from that base; set empty to skip building.
       base_runner_version:
-        description: "Base image version for runner (docker). Use empty to skip building"
+        description: "Base image version for runner (docker). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
-        default: 'latest'
       base_hub_version:
-        description: "Base image version for hub (selenium/hub). Use empty to skip building"
+        description: "Base image version for hub (selenium/hub). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
-        default: 'latest'
       base_chrome_version:
-        description: "Base image version for chrome (selenium/node-chrome). Use empty to skip building"
+        description: "Base image version for chrome (selenium/node-chrome). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
-        default: 'latest'
       base_firefox_version:
-        description: "Base image version for firefox (selenium/node-firefox). Use empty to skip building"
+        description: "Base image version for firefox (selenium/node-firefox). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
-        default: 'latest'
       base_edge_version:
-        description: "Base image version for edge (selenium/node-edge). Use empty to skip building"
+        description: "Base image version for edge (selenium/node-edge). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
-        default: 'latest'
 
 permissions:
   contents: read
