@@ -7,46 +7,28 @@ on:
         description: 'Branch to checkout for Dockerfiles and build'
         required: true
         default: 'main'
-      build_runner:
-        description: 'Build runner image'
-        required: true
-        default: 'true'
+      # Provide 'latest' (default) to build using the highest base image version;
+      # provide specific version like '127.0' to build from that base; set empty to skip building.
       base_runner_version:
-        description: 'Optional base image version for runner (docker). Leave empty to resolve latest'
+        description: "Base image version for runner (docker). Use empty to skip building"
         required: false
-        default: ''
-      build_hub:
-        description: 'Build hub image'
-        required: true
-        default: 'true'
+        default: 'latest'
       base_hub_version:
-        description: 'Optional base image version for hub (selenium/hub). Leave empty to resolve latest'
+        description: "Base image version for hub (selenium/hub). Use empty to skip building"
         required: false
-        default: ''
-      build_chrome:
-        description: 'Build chrome image'
-        required: true
-        default: 'true'
+        default: 'latest'
       base_chrome_version:
-        description: 'Optional base image version for chrome (selenium/node-chrome). Leave empty to resolve latest'
+        description: "Base image version for chrome (selenium/node-chrome). Use empty to skip building"
         required: false
-        default: ''
-      build_firefox:
-        description: 'Build firefox image'
-        required: true
-        default: 'true'
+        default: 'latest'
       base_firefox_version:
-        description: 'Optional base image version for firefox (selenium/node-firefox). Leave empty to resolve latest'
+        description: "Base image version for firefox (selenium/node-firefox). Use empty to skip building"
         required: false
-        default: ''
-      build_edge:
-        description: 'Build edge image'
-        required: true
-        default: 'true'
+        default: 'latest'
       base_edge_version:
-        description: 'Optional base image version for edge (selenium/node-edge). Leave empty to resolve latest'
+        description: "Base image version for edge (selenium/node-edge). Use empty to skip building"
         required: false
-        default: ''
+        default: 'latest'
 
 permissions:
   contents: read
@@ -79,77 +61,89 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           resolve_latest() {
             repo="$1"
             # Query Docker Hub tags and pick the highest semver-like tag
-            tag=$(curl -s "https://registry.hub.docker.com/v2/repositories/${repo}/tags?page_size=100" | jq -r '.results[].name' | grep -E '^[0-9]+(\.[0-9]+)*$' | sort -V | tail -n1)
+            tag=$(curl -s "https://registry.hub.docker.com/v2/repositories/${repo}/tags?page_size=100" \
+              | jq -r '.results[].name' \
+              | grep -E '^[0-9]+(\.[0-9]+)*$' \
+              | sort -V \
+              | tail -n1)
             if [ -z "$tag" ]; then
-              # fallback to 'latest' if no numeric tag found
               tag=latest
             fi
             echo "$tag"
           }
 
-          if [ -n "${{ github.event.inputs.base_runner_version }}" ]; then
-            runner_version="${{ github.event.inputs.base_runner_version }}"
-            runner_is_latest=false
-          else
-            runner_version=$(resolve_latest "library/docker")
-            runner_is_latest=true
-          fi
+          # Helper: decide per-input
+          decide() {
+            input_val="$1"
+            repo="$2"
+            if [ -z "$input_val" ]; then
+              # empty -> skip building
+              echo "version:"
+              echo "is_latest:false"
+            elif [ "$input_val" = "latest" ]; then
+              resolved=$(resolve_latest "$repo")
+              echo "version:$resolved"
+              echo "is_latest:true"
+            else
+              echo "version:$input_val"
+              echo "is_latest:false"
+            fi
+          }
 
-          if [ -n "${{ github.event.inputs.base_hub_version }}" ]; then
-            hub_version="${{ github.event.inputs.base_hub_version }}"
-            hub_is_latest=false
-          else
-            hub_version=$(resolve_latest "selenium/hub")
-            hub_is_latest=true
-          fi
+          # Runner
+          runner_input='${{ github.event.inputs.base_runner_version }}'
+          runner_out=$(decide "$runner_input" "library/docker")
+          runner_version=$(echo "$runner_out" | sed -n '1p' | sed 's/^version://')
+          runner_is_latest=$(echo "$runner_out" | sed -n '2p' | sed 's/^is_latest://')
 
-          if [ -n "${{ github.event.inputs.base_chrome_version }}" ]; then
-            chrome_version="${{ github.event.inputs.base_chrome_version }}"
-            chrome_is_latest=false
-          else
-            chrome_version=$(resolve_latest "selenium/node-chrome")
-            chrome_is_latest=true
-          fi
+          # Hub
+          hub_input='${{ github.event.inputs.base_hub_version }}'
+          hub_out=$(decide "$hub_input" "selenium/hub")
+          hub_version=$(echo "$hub_out" | sed -n '1p' | sed 's/^version://')
+          hub_is_latest=$(echo "$hub_out" | sed -n '2p' | sed 's/^is_latest://')
 
-          if [ -n "${{ github.event.inputs.base_firefox_version }}" ]; then
-            firefox_version="${{ github.event.inputs.base_firefox_version }}"
-            firefox_is_latest=false
-          else
-            firefox_version=$(resolve_latest "selenium/node-firefox")
-            firefox_is_latest=true
-          fi
+          # Chrome
+          chrome_input='${{ github.event.inputs.base_chrome_version }}'
+          chrome_out=$(decide "$chrome_input" "selenium/node-chrome")
+          chrome_version=$(echo "$chrome_out" | sed -n '1p' | sed 's/^version://')
+          chrome_is_latest=$(echo "$chrome_out" | sed -n '2p' | sed 's/^is_latest://')
 
-          if [ -n "${{ github.event.inputs.base_edge_version }}" ]; then
-            edge_version="${{ github.event.inputs.base_edge_version }}"
-            edge_is_latest=false
-          else
-            edge_version=$(resolve_latest "selenium/node-edge")
-            edge_is_latest=true
-          fi
+          # Firefox
+          firefox_input='${{ github.event.inputs.base_firefox_version }}'
+          firefox_out=$(decide "$firefox_input" "selenium/node-firefox")
+          firefox_version=$(echo "$firefox_out" | sed -n '1p' | sed 's/^version://')
+          firefox_is_latest=$(echo "$firefox_out" | sed -n '2p' | sed 's/^is_latest://')
 
-          echo "runner_version=$runner_version" >> $GITHUB_OUTPUT
-          echo "runner_is_latest=$runner_is_latest" >> $GITHUB_OUTPUT
-          echo "hub_version=$hub_version" >> $GITHUB_OUTPUT
-          echo "hub_is_latest=$hub_is_latest" >> $GITHUB_OUTPUT
-          echo "chrome_version=$chrome_version" >> $GITHUB_OUTPUT
-          echo "chrome_is_latest=$chrome_is_latest" >> $GITHUB_OUTPUT
-          echo "firefox_version=$firefox_version" >> $GITHUB_OUTPUT
-          echo "firefox_is_latest=$firefox_is_latest" >> $GITHUB_OUTPUT
-          echo "edge_version=$edge_version" >> $GITHUB_OUTPUT
-          echo "edge_is_latest=$edge_is_latest" >> $GITHUB_OUTPUT
+          # Edge
+          edge_input='${{ github.event.inputs.base_edge_version }}'
+          edge_out=$(decide "$edge_input" "selenium/node-edge")
+          edge_version=$(echo "$edge_out" | sed -n '1p' | sed 's/^version://')
+          edge_is_latest=$(echo "$edge_out" | sed -n '2p' | sed 's/^is_latest://')
 
+          echo "runner_version=${runner_version}" >> $GITHUB_OUTPUT
+          echo "runner_is_latest=${runner_is_latest}" >> $GITHUB_OUTPUT
+          echo "hub_version=${hub_version}" >> $GITHUB_OUTPUT
+          echo "hub_is_latest=${hub_is_latest}" >> $GITHUB_OUTPUT
+          echo "chrome_version=${chrome_version}" >> $GITHUB_OUTPUT
+          echo "chrome_is_latest=${chrome_is_latest}" >> $GITHUB_OUTPUT
+          echo "firefox_version=${firefox_version}" >> $GITHUB_OUTPUT
+          echo "firefox_is_latest=${firefox_is_latest}" >> $GITHUB_OUTPUT
+          echo "edge_version=${edge_version}" >> $GITHUB_OUTPUT
+          echo "edge_is_latest=${edge_is_latest}" >> $GITHUB_OUTPUT
+
+  # Build jobs now run only when corresponding input is NOT empty
   build-runner:
-    if: ${{ github.event.inputs.build_runner == 'true' }}
+    if: ${{ github.event.inputs.base_runner_version != '' }}
     name: Build runner image
     needs: prepare
     runs-on: ubuntu-latest
     env:
       BASE_VERSION: ${{ needs.prepare.outputs.runner_version }}
       IS_LATEST: ${{ needs.prepare.outputs.runner_is_latest }}
-      BRANCH: ${{ github.event.inputs.branch }}
     steps:
       - name: Checkout selected branch
         uses: actions/checkout@v4
@@ -169,29 +163,23 @@ jobs:
         id: tags
         shell: bash
         run: |
-          echo "BASE_VERSION=${BASE_VERSION}"
-          echo "IS_LATEST=${IS_LATEST}"
-          echo "BRANCH=${BRANCH}"
-          if [ "${BRANCH}" = "main" ]; then
-            primary="${BASE_VERSION}"
-            if [ "${IS_LATEST}" = "true" ]; then
-              secondary="latest"
-            else
-              secondary=""
-            fi
-          else
-            sanitized="${BRANCH//\//-}"
-            primary="${sanitized}-${BASE_VERSION}"
-            if [ "${IS_LATEST}" = "true" ]; then
-              secondary="${sanitized}-latest"
-            else
-              secondary=""
-            fi
+          if [ -z "${BASE_VERSION}" ]; then
+            echo "No base version resolved; exiting"
+            exit 0
           fi
-          echo "tags<<EOF" >> $GITHUB_OUTPUT
-          echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${primary}" >> $GITHUB_OUTPUT
-          if [ -n "${secondary}" ]; then echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${secondary}" >> $GITHUB_OUTPUT; fi
-          echo "EOF" >> $GITHUB_OUTPUT
+          tags_list=""
+          if [ "${IS_LATEST}" = "true" ]; then
+            tags_list="${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${BASE_VERSION} ${ { github.repository_owner }} /dummy"
+            # ensure two tags: version and latest
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${BASE_VERSION}" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:latest" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-runner:${BASE_VERSION}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
       - name: Build and push runner
         uses: docker/build-push-action@v4
         with:
@@ -203,14 +191,13 @@ jobs:
             BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-hub:
-    if: ${{ github.event.inputs.build_hub == 'true' }}
+    if: ${{ github.event.inputs.base_hub_version != '' }}
     name: Build hub image
     needs: prepare
     runs-on: ubuntu-latest
     env:
       BASE_VERSION: ${{ needs.prepare.outputs.hub_version }}
       IS_LATEST: ${{ needs.prepare.outputs.hub_is_latest }}
-      BRANCH: ${{ github.event.inputs.branch }}
     steps:
       - name: Checkout selected branch
         uses: actions/checkout@v4
@@ -230,29 +217,20 @@ jobs:
         id: tags
         shell: bash
         run: |
-          echo "BASE_VERSION=${BASE_VERSION}"
-          echo "IS_LATEST=${IS_LATEST}"
-          echo "BRANCH=${BRANCH}"
-          if [ "${BRANCH}" = "main" ]; then
-            primary="${BASE_VERSION}"
-            if [ "${IS_LATEST}" = "true" ]; then
-              secondary="latest"
-            else
-              secondary=""
-            fi
-          else
-            sanitized="${BRANCH//\//-}"
-            primary="${sanitized}-${BASE_VERSION}"
-            if [ "${IS_LATEST}" = "true" ]; then
-              secondary="${sanitized}-latest"
-            else
-              secondary=""
-            fi
+          if [ -z "${BASE_VERSION}" ]; then
+            echo "No base version resolved; exiting"
+            exit 0
           fi
-          echo "tags<<EOF" >> $GITHUB_OUTPUT
-          echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${primary}" >> $GITHUB_OUTPUT
-          if [ -n "${secondary}" ]; then echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${secondary}" >> $GITHUB_OUTPUT; fi
-          echo "EOF" >> $GITHUB_OUTPUT
+          if [ "${IS_LATEST}" = "true" ]; then
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${BASE_VERSION}" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:latest" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-hub:${BASE_VERSION}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
       - name: Build and push hub
         uses: docker/build-push-action@v4
         with:
@@ -264,14 +242,13 @@ jobs:
             BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-chrome:
-    if: ${{ github.event.inputs.build_chrome == 'true' }}
+    if: ${{ github.event.inputs.base_chrome_version != '' }}
     name: Build chrome image
     needs: prepare
     runs-on: ubuntu-latest
     env:
       BASE_VERSION: ${{ needs.prepare.outputs.chrome_version }}
       IS_LATEST: ${{ needs.prepare.outputs.chrome_is_latest }}
-      BRANCH: ${{ github.event.inputs.branch }}
     steps:
       - name: Checkout selected branch
         uses: actions/checkout@v4
@@ -294,29 +271,20 @@ jobs:
         id: tags
         shell: bash
         run: |
-          echo "BASE_VERSION=${BASE_VERSION}"
-          echo "IS_LATEST=${IS_LATEST}"
-          echo "BRANCH=${BRANCH}"
-          if [ "${BRANCH}" = "main" ]; then
-            primary="${BASE_VERSION}"
-            if [ "${IS_LATEST}" = "true" ]; then
-              secondary="latest"
-            else
-              secondary=""
-            fi
-          else
-            sanitized="${BRANCH//\//-}"
-            primary="${sanitized}-${BASE_VERSION}"
-            if [ "${IS_LATEST}" = "true" ]; then
-              secondary="${sanitized}-latest"
-            else
-              secondary=""
-            fi
+          if [ -z "${BASE_VERSION}" ]; then
+            echo "No base version resolved; exiting"
+            exit 0
           fi
-          echo "tags<<EOF" >> $GITHUB_OUTPUT
-          echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${primary}" >> $GITHUB_OUTPUT
-          if [ -n "${secondary}" ]; then echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${secondary}" >> $GITHUB_OUTPUT; fi
-          echo "EOF" >> $GITHUB_OUTPUT
+          if [ "${IS_LATEST}" = "true" ]; then
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${BASE_VERSION}" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:latest" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-chrome:${BASE_VERSION}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
       - name: Build and push chrome
         uses: docker/build-push-action@v4
         with:
@@ -328,14 +296,13 @@ jobs:
             BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-firefox:
-    if: ${{ github.event.inputs.build_firefox == 'true' }}
+    if: ${{ github.event.inputs.base_firefox_version != '' }}
     name: Build firefox image
     needs: prepare
     runs-on: ubuntu-latest
     env:
       BASE_VERSION: ${{ needs.prepare.outputs.firefox_version }}
       IS_LATEST: ${{ needs.prepare.outputs.firefox_is_latest }}
-      BRANCH: ${{ github.event.inputs.branch }}
     steps:
       - name: Checkout selected branch
         uses: actions/checkout@v4
@@ -355,29 +322,20 @@ jobs:
         id: tags
         shell: bash
         run: |
-          echo "BASE_VERSION=${BASE_VERSION}"
-          echo "IS_LATEST=${IS_LATEST}"
-          echo "BRANCH=${BRANCH}"
-          if [ "${BRANCH}" = "main" ]; then
-            primary="${BASE_VERSION}"
-            if [ "${IS_LATEST}" = "true" ]; then
-              secondary="latest"
-            else
-              secondary=""
-            fi
-          else
-            sanitized="${BRANCH//\//-}"
-            primary="${sanitized}-${BASE_VERSION}"
-            if [ "${IS_LATEST}" = "true" ]; then
-              secondary="${sanitized}-latest"
-            else
-              secondary=""
-            fi
+          if [ -z "${BASE_VERSION}" ]; then
+            echo "No base version resolved; exiting"
+            exit 0
           fi
-          echo "tags<<EOF" >> $GITHUB_OUTPUT
-          echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${primary}" >> $GITHUB_OUTPUT
-          if [ -n "${secondary}" ]; then echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${secondary}" >> $GITHUB_OUTPUT; fi
-          echo "EOF" >> $GITHUB_OUTPUT
+          if [ "${IS_LATEST}" = "true" ]; then
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${BASE_VERSION}" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:latest" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-firefox:${BASE_VERSION}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
       - name: Build and push firefox
         uses: docker/build-push-action@v4
         with:
@@ -389,14 +347,13 @@ jobs:
             BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-edge:
-    if: ${{ github.event.inputs.build_edge == 'true' }}
+    if: ${{ github.event.inputs.base_edge_version != '' }}
     name: Build edge image
     needs: prepare
     runs-on: ubuntu-latest
     env:
       BASE_VERSION: ${{ needs.prepare.outputs.edge_version }}
       IS_LATEST: ${{ needs.prepare.outputs.edge_is_latest }}
-      BRANCH: ${{ github.event.inputs.branch }}
     steps:
       - name: Checkout selected branch
         uses: actions/checkout@v4
@@ -406,8 +363,6 @@ jobs:
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -416,29 +371,20 @@ jobs:
         id: tags
         shell: bash
         run: |
-          echo "BASE_VERSION=${BASE_VERSION}"
-          echo "IS_LATEST=${IS_LATEST}"
-          echo "BRANCH=${BRANCH}"
-          if [ "${BRANCH}" = "main" ]; then
-            primary="${BASE_VERSION}"
-            if [ "${IS_LATEST}" = "true" ]; then
-              secondary="latest"
-            else
-              secondary=""
-            fi
-          else
-            sanitized="${BRANCH//\//-}"
-            primary="${sanitized}-${BASE_VERSION}"
-            if [ "${IS_LATEST}" = "true" ]; then
-              secondary="${sanitized}-latest"
-            else
-              secondary=""
-            fi
+          if [ -z "${BASE_VERSION}" ]; then
+            echo "No base version resolved; exiting"
+            exit 0
           fi
-          echo "tags<<EOF" >> $GITHUB_OUTPUT
-          echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${primary}" >> $GITHUB_OUTPUT
-          if [ -n "${secondary}" ]; then echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${secondary}" >> $GITHUB_OUTPUT; fi
-          echo "EOF" >> $GITHUB_OUTPUT
+          if [ "${IS_LATEST}" = "true" ]; then
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${BASE_VERSION}" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:latest" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-edge:${BASE_VERSION}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
       - name: Build and push edge
         uses: docker/build-push-action@v4
         with:
@@ -448,4 +394,3 @@ jobs:
           tags: ${{ steps.tags.outputs.tags }}
           build-args: |
             BASE_VERSION=${{ env.BASE_VERSION }}
-
