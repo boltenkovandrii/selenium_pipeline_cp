@@ -1,4 +1,5 @@
-FROM selenium/hub:4.23.1
+ARG BASE_VERSION
+FROM selenium/hub:${BASE_VERSION}
 
 RUN whoami
 USER root

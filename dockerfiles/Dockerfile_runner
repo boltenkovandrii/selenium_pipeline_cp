@@ -1,4 +1,5 @@
-FROM docker:dind
+ARG BASE_VERSION
+FROM docker:${BASE_VERSION}
 
 RUN apk update and
 
