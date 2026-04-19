@@ -1,5 +1,5 @@
 ARG BASE_VERSION
-FROM selenium/node-chrome:${BASE_VERSION}
+FROM selenium/node-chrome:${BASE_VERSION}--
 
 RUN whoami
 USER root

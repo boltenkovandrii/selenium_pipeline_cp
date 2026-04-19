@@ -19,9 +19,9 @@ on:
         description: 'Tag of images to pull from ghcr'
         required: true
         default: 'latest'
-  push:
-    branches:
-      - feature/*
+#  push:
+#    branches:
+#      - feature/*
 
 jobs:
   prepare:
