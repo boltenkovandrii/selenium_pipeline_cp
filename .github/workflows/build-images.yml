@@ -50,6 +50,14 @@ jobs:
       edge_version: ${{ steps.set_versions.outputs.edge_version }}
       edge_is_latest: ${{ steps.set_versions.outputs.edge_is_latest }}
     steps:
+      - name: Show workflow inputs
+        run: |
+          echo "branch = ${{ github.event.inputs.branch }}"
+          echo "base_runner_version = ${{ github.event.inputs.base_runner_version }}"
+          echo "base_hub_version = ${{ github.event.inputs.base_hub_version }}"
+          echo "base_chrome_version = ${{ github.event.inputs.base_chrome_version }}"
+          echo "base_firefox_version = ${{ github.event.inputs.base_firefox_version }}"
+          echo "base_edge_version = ${{ github.event.inputs.base_edge_version }}"
       - name: Checkout selected branch
         uses: actions/checkout@v4
         with:
