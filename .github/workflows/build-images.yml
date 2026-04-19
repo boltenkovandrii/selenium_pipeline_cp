@@ -169,6 +169,9 @@ jobs:
         id: tags
         shell: bash
         run: |
+          echo "BASE_VERSION=${BASE_VERSION}"
+          echo "IS_LATEST=${IS_LATEST}"
+          echo "BRANCH=${BRANCH}"
           if [ "${BRANCH}" = "main" ]; then
             primary="${BASE_VERSION}"
             if [ "${IS_LATEST}" = "true" ]; then
@@ -227,6 +230,9 @@ jobs:
         id: tags
         shell: bash
         run: |
+          echo "BASE_VERSION=${BASE_VERSION}"
+          echo "IS_LATEST=${IS_LATEST}"
+          echo "BRANCH=${BRANCH}"
           if [ "${BRANCH}" = "main" ]; then
             primary="${BASE_VERSION}"
             if [ "${IS_LATEST}" = "true" ]; then
@@ -288,6 +294,9 @@ jobs:
         id: tags
         shell: bash
         run: |
+          echo "BASE_VERSION=${BASE_VERSION}"
+          echo "IS_LATEST=${IS_LATEST}"
+          echo "BRANCH=${BRANCH}"
           if [ "${BRANCH}" = "main" ]; then
             primary="${BASE_VERSION}"
             if [ "${IS_LATEST}" = "true" ]; then
@@ -346,6 +355,9 @@ jobs:
         id: tags
         shell: bash
         run: |
+          echo "BASE_VERSION=${BASE_VERSION}"
+          echo "IS_LATEST=${IS_LATEST}"
+          echo "BRANCH=${BRANCH}"
           if [ "${BRANCH}" = "main" ]; then
             primary="${BASE_VERSION}"
             if [ "${IS_LATEST}" = "true" ]; then
@@ -404,6 +416,9 @@ jobs:
         id: tags
         shell: bash
         run: |
+          echo "BASE_VERSION=${BASE_VERSION}"
+          echo "IS_LATEST=${IS_LATEST}"
+          echo "BRANCH=${BRANCH}"
           if [ "${BRANCH}" = "main" ]; then
             primary="${BASE_VERSION}"
             if [ "${IS_LATEST}" = "true" ]; then
