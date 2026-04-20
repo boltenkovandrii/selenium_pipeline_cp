@@ -3,28 +3,28 @@ name: Run tests with Selenium Grid
 on:
   workflow_dispatch:
     inputs:
+      tags:
+        description: 'Test tag to include'
+        required: true
+        default: 'regression'
       browser:
         description: 'Browser to use (chrome, firefox, edge)'
         required: true
         default: 'firefox'
+      browser-image-tag:
+        description: 'Tag of browser images (chrome, firefox, edge) to pull from ghcr'
+        required: true
+        default: 'latest'
       threads:
         description: 'Number of parallel browser nodes to run'
         required: true
         default: '2'
-      tags:
-        description: 'Test tag to include (overrides default)'
-        required: true
-        default: 'regression'
       runner-image-tag:
         description: 'Tag of runner image to pull from ghcr'
         required: true
         default: 'latest'
       hub-image-tag:
         description: 'Tag of hub image to pull from ghcr'
-        required: true
-        default: 'latest'
-      browser-image-tag:
-        description: 'Tag of browser images (chrome, firefox, edge) to pull from ghcr'
         required: true
         default: 'latest'
 
