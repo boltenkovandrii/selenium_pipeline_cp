@@ -77,7 +77,14 @@ jobs:
           REPO_NAME: ${{ github.event.repository.name }}
         run: |
           docker network create selenium-grid-network || true
-          docker-compose -f docker-compose-gh.yml up --scale selenium-${{ env.BROWSER }}=${{ env.THREADS }} -d
+          # set per-browser tags: only selected browser uses BROWSER_IMAGE_TAG, others use 'latest'
+          if [ "${BROWSER}" = "chrome" ]; then CHROME_IMAGE_TAG="${BROWSER_IMAGE_TAG}"; else CHROME_IMAGE_TAG="latest"; fi
+          if [ "${BROWSER}" = "firefox" ]; then FIREFOX_IMAGE_TAG="${BROWSER_IMAGE_TAG}"; else FIREFOX_IMAGE_TAG="latest"; fi
+          if [ "${BROWSER}" = "edge" ]; then EDGE_IMAGE_TAG="${BROWSER_IMAGE_TAG}"; else EDGE_IMAGE_TAG="latest"; fi
+          export HUB_IMAGE_TAG="${HUB_IMAGE_TAG}"
+          export RUNNER_IMAGE_TAG="${RUNNER_IMAGE_TAG}"
+          export CHROME_IMAGE_TAG FIREFOX_IMAGE_TAG EDGE_IMAGE_TAG
+          docker-compose -f docker-compose-gh.yml up --scale selenium-${BROWSER}=${THREADS} -d
 
       - name: Show running containers
         run: |
