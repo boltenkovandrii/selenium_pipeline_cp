@@ -1,0 +1,101 @@
+name: Clean old container images
+
+on:
+  workflow_dispatch:
+    inputs:
+      min_versions_to_keep:
+        description: 'Minimum versions to keep per package (numeric)'
+        required: false
+        default: '5'
+  schedule:
+    - cron: '0 3 * * 0' # Weekly on Sunday at 03:00 UTC
+
+jobs:
+  cleanup:
+    name: cleanup old images
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    env:
+      OWNER: ${{ github.repository_owner }}
+      REPO: ${{ github.event.repository.name }}
+      MIN_KEEP: ${{ github.event.inputs.min_versions_to_keep }}
+    steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Delete old runner versions
+        uses: actions/delete-package-versions@v5
+        continue-on-error: true
+        with:
+          package-name: ${{ env.REPO }}-runner
+          package-type: container
+          min-versions-to-keep: ${{ env.MIN_KEEP }}
+          delete-only-untagged-versions: true
+
+      - name: Delete old hub versions
+        uses: actions/delete-package-versions@v5
+        continue-on-error: true
+        with:
+          package-name: ${{ env.REPO }}-hub
+          package-type: container
+          min-versions-to-keep: ${{ env.MIN_KEEP }}
+          delete-only-untagged-versions: true
+
+      - name: Delete old chrome versions
+        uses: actions/delete-package-versions@v5
+        continue-on-error: true
+        with:
+          package-name: ${{ env.REPO }}-chrome
+          package-type: container
+          min-versions-to-keep: ${{ env.MIN_KEEP }}
+          delete-only-untagged-versions: true
+
+      - name: Delete old firefox versions
+        uses: actions/delete-package-versions@v5
+        continue-on-error: true
+        with:
+          package-name: ${{ env.REPO }}-firefox
+          package-type: container
+          min-versions-to-keep: ${{ env.MIN_KEEP }}
+          delete-only-untagged-versions: true
+
+      - name: Delete old edge versions
+        uses: actions/delete-package-versions@v5
+        continue-on-error: true
+        with:
+          package-name: ${{ env.REPO }}-edge
+          package-type: container
+          min-versions-to-keep: ${{ env.MIN_KEEP }}
+          delete-only-untagged-versions: true
+
+      - name: Summarize remaining package versions
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "Generating cleanup summary..."
+          packages=(runner hub chrome firefox edge)
+          summary=""
+          for p in "${packages[@]}"; do
+            pkg="${REPO}-${p}"
+            # Try org endpoint first, then users
+            out=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/orgs/${OWNER}/packages/container/${pkg}/versions" || true)
+            if [ -z "$out" ] || echo "$out" | grep -q 'Not Found' || echo "$out" | grep -q 'Not Found'; then
+              out=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/users/${OWNER}/packages/container/${pkg}/versions" || true)
+            fi
+            if [ -z "$out" ] || [ "$out" = "null" ]; then
+              summary+="${pkg}: no info or inaccessible\n"
+              continue
+            fi
+            # extract id and name for each version
+            versions=$(echo "$out" | jq -r '.[] | "id:\(.id) name:\(.name)"' | sed 's/$/\\n/')
+            if [ -z "$versions" ]; then
+              summary+="${pkg}: no versions\n"
+            else
+              summary+="${pkg}:\n${versions}\n"
+            fi
+          done
+          echo -e "## Cleanup summary\n\n${summary}" >> $GITHUB_STEP_SUMMARY
+
