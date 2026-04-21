@@ -148,11 +148,3 @@ jobs:
           name: container-logs
           path: logs
           retention-days: 3
-
-      - name: Publish artifacts
-        run: |
-          REPORT_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.ref_name }}/${{ github.run_id }}/"
-          
-          echo "## 🧪 Allure Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "[Open Allure Report]($REPORT_URL)" >> $GITHUB_STEP_SUMMARY
