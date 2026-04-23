@@ -19,10 +19,6 @@ on:
         description: 'Number of parallel browser nodes to run'
         required: true
         default: '2'
-      runner-image-tag:
-        description: 'Tag of runner image to pull from ghcr'
-        required: true
-        default: 'latest'
       hub-image-tag:
         description: 'Tag of hub image to pull from ghcr'
         required: true
@@ -44,7 +40,6 @@ jobs:
       BROWSER: ${{ github.event.inputs.browser || 'firefox' }}
       THREADS: ${{ github.event.inputs.threads || 2 }}
       TAGS: ${{ github.event.inputs.tags || 'regression' }}
-      RUNNER_IMAGE_TAG: ${{ github.event.inputs['runner-image-tag'] || 'latest' }}
       HUB_IMAGE_TAG: ${{ github.event.inputs['hub-image-tag'] || 'latest' }}
       BROWSER_IMAGE_TAG: ${{ github.event.inputs['browser-image-tag'] || 'latest' }}
 
@@ -82,7 +77,6 @@ jobs:
           if [ "${BROWSER}" = "firefox" ]; then FIREFOX_IMAGE_TAG="${BROWSER_IMAGE_TAG}"; else FIREFOX_IMAGE_TAG="latest"; fi
           if [ "${BROWSER}" = "edge" ]; then EDGE_IMAGE_TAG="${BROWSER_IMAGE_TAG}"; else EDGE_IMAGE_TAG="latest"; fi
           export HUB_IMAGE_TAG="${HUB_IMAGE_TAG}"
-          export RUNNER_IMAGE_TAG="${RUNNER_IMAGE_TAG}"
           export CHROME_IMAGE_TAG FIREFOX_IMAGE_TAG EDGE_IMAGE_TAG
           docker-compose -f docker-compose-gh.yml up --scale selenium-${BROWSER}=${THREADS} -d
 

@@ -24,7 +24,6 @@ Notes:
 - build-images.yml
   - Trigger: manual (workflow_dispatch)
   - Purpose: builds Docker images from dockerfiles/* and pushes to ghcr.io as:
-    - ghcr.io/<owner>/<repo>-runner:<tag>
     - ghcr.io/<owner>/<repo>-hub:<tag>
     - ghcr.io/<owner>/<repo>-chrome:<tag>
     - ghcr.io/<owner>/<repo>-firefox:<tag>
