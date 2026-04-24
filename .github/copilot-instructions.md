@@ -24,7 +24,6 @@ Notes:
 - build-images.yml
   - Trigger: manual (workflow_dispatch)
   - Purpose: builds Docker images from dockerfiles/* and pushes to ghcr.io as:
-    - ghcr.io/<owner>/<repo>-runner:<tag>
     - ghcr.io/<owner>/<repo>-hub:<tag>
     - ghcr.io/<owner>/<repo>-chrome:<tag>
     - ghcr.io/<owner>/<repo>-firefox:<tag>
@@ -46,7 +45,7 @@ Notes:
   - com.andrii.test.base — test bootstrap and utilities (WebDriverManager, TestConfig, TestBase, ParallelExecutionStrategy, FileUtils, EventListener)
 - Resources in src/test/resources contain drivers, config.properties, and Allure configuration.
 - Reporting: Allure commandline is integrated via Gradle plugin; generated report lives at build/reports/allure-report/allureReport (open index.html).
-- CI: GitLab pipeline configs (.gitlab-ci*.yml) and Dockerfiles/* are used to build images and run tests in pipelines. GitHub Actions workflows have been added in .github/workflows (build-images.yml and tests-run.yml) that mirror GitLab behavior and push/pull images to ghcr.io.
+- CI: Dockerfiles/* and GitHub Actions workflows (.github/workflows) are used to build images and run tests in CI. Workflows push/pull images to ghcr.io.
 
 ## Key repository conventions
 - Test selection:

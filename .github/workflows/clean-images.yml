@@ -24,15 +24,6 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Delete old runner versions
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: ${{ env.REPO }}-runner
-          package-type: container
-          min-versions-to-keep: ${{ env.MIN_KEEP }}
-          delete-only-untagged-versions: true
-
       - name: Delete old hub versions
         uses: actions/delete-package-versions@v5
         continue-on-error: true
@@ -76,7 +67,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "Generating cleanup summary..."
-          packages=(runner hub chrome firefox edge)
+          packages=(hub chrome firefox edge)
           summary=""
           for p in "${packages[@]}"; do
             pkg="${REPO}-${p}"

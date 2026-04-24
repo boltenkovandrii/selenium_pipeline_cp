@@ -1,12 +1,10 @@
 ARG BASE_VERSION
 FROM selenium/node-edge:${BASE_VERSION}
 
-RUN whoami
 USER root
 
 RUN apt-get install tzdata
 ENV TZ="Europe/Amsterdam"
 
 USER seluser
-RUN whoami
 

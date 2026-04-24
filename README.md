@@ -1,14 +1,15 @@
 # What is this?
 Just a small demo project to show how some tools work together:
-- Java (Java 17 to be exact, although it can be updated relatively easily to use other versions)
+- Java 
 - Junit5
 - Selenium 
 - Selenium hub (only set up for pipeline)
 - Allure report
-- Gitlab CI\CD pipelines
+- GitHub Actions
+Ported from GitLab using Copilot
 
 ### But what does it do?
-With this project you can run some of the provided tests on https://www.wikipedia.org/ both on your local machine and on GitLab.
+With this project you can run some of the provided tests on https://www.wikipedia.org/ both on your local machine and in CI (GitHub Actions).
 The tests themselves are not very meaningful and are provided for demonstration purposes only.
 
 # Project structure:
@@ -18,8 +19,8 @@ Most important files, packages and directories are:
 - **src/test/java/com/andrii/test/base** - various utility classes
 - **src/test/resources/drivers** directory for various browser drivers for various systems
 - **src/test/resources/config.properties** - configuration options for startup (although these options are often overridden by command line options)
-- **.gitlab-ci.*.yml** - pipeline configuration for the GitLab
-- **dockerfiles** directory for various docker files used in GitLab pipeline
+- **.github/workflows** - GitHub workflows
+- **dockerfiles** directory for Dockerfiles used by CI/workflows (image builds)
 
 # Running tests on local machine:
 - Import project with your IDE
@@ -31,11 +32,9 @@ Most important files, packages and directories are:
 - [ ] **./gradlew clean test -DincludeTags=current -Dbrowser=edge -Dthreads=2 allureReport** - only tests annotated with **@Tag("current")** will be run, using MS Edge. Tests will be run in 2 threads.
 - After run is finished, you can find generated report **build/reports/allure-report/allureReport**. To see it from IDE just use 'open in browser' option on index.html file from this directory. 
 
-# Running tests from GitLab
-- Go to Build->Pipelines and press "Run pipeline" button.
-- Set variables for the build and press "Run pipeline"
-- If you are running tests for the first time, you need to build Docker images (after creating the images, they are saved 
-in the local registry under Deploy->Container Registry and will be used for the next runs). So run all jobs under "build" section.
-- When all needed images are ready, run "tests-run" job, which actually starts the tests.
-- To see test results after job is finished, open job, click "Browse" and then "public". "Downloads" directory contains 
-files, downloaded during the test run and "allureReport" - report itself  (just click index.html to view it).
+# Running tests from GitHub
+- Go to Actions and select "Run tests with Selenium Grid".
+- Press "Run workflow", set variables for the build and start workflow
+- Project uses own images for Selenium hub and browser images based on official ones (mostly for demonstration purposes). You can select specific versions, but easier is just to run on latest.
+- After test if finished, Allure Report will be available on jobs page along with some other useful logs (needs ~1min to be prepared)  
+
