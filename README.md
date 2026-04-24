@@ -8,7 +8,7 @@ Just a small demo project to show how some tools work together:
 - GitHub Actions
 
 ### But what does it do?
-With this project you can run some of the provided tests on https://www.wikipedia.org/ both on your local machine and on GitLab.
+With this project you can run some of the provided tests on https://www.wikipedia.org/ both on your local machine and in CI (GitHub Actions).
 The tests themselves are not very meaningful and are provided for demonstration purposes only.
 
 # Project structure:
@@ -19,7 +19,7 @@ Most important files, packages and directories are:
 - **src/test/resources/drivers** directory for various browser drivers for various systems
 - **src/test/resources/config.properties** - configuration options for startup (although these options are often overridden by command line options)
 - **.github/workflows** - GitHub workflows
-- **dockerfiles** directory for various docker files used in GitLab pipeline
+- **dockerfiles** directory for Dockerfiles used by CI/workflows (image builds)
 
 # Running tests on local machine:
 - Import project with your IDE
