@@ -23,7 +23,7 @@ on:
         required: false
   schedule:
 #    - cron: '0 0 * * 5' # Weekly (Friday 00:00 UTC)
-    - cron: '0 13 * * 0' # test
+    - cron: '0 13 * * *' # test
 
 permissions:
   contents: read

@@ -9,7 +9,7 @@ on:
         default: '5'
   schedule:
 #    - cron: '0 3 * * 0' # Weekly on Sunday at 03:00 UTC
-    - cron: '0 14 * * 0' # Test
+    - cron: '0 14 * * *' # Test
 
 jobs:
   cleanup:
