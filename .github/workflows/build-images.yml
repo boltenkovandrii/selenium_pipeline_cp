@@ -21,6 +21,8 @@ on:
       base_edge_version:
         description: "Base image version for edge (selenium/node-edge). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
+  schedule:
+    - cron: '0 0 * * 5' # Weekly (Friday 00:00 UTC)
 
 permissions:
   contents: read
