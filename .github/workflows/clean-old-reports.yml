@@ -12,7 +12,8 @@ on:
         required: false
         default: '3'
   schedule:
-    - cron: '0 0 * * 0' # Weekly (Sunday 00:00 UTC)
+#    - cron: '0 0 * * 0' # Weekly (Sunday 00:00 UTC)
+    - cron: '0 0 * * *' # test
 
 permissions:
   contents: write
@@ -53,15 +54,23 @@ jobs:
               echo "Keeping $dirpath (within keep-count)"
               continue
             fi
+
             # delete only if older than retention days
-            if find "$dirpath" -maxdepth 0 -mtime +$RETENTION_DAYS | grep -q .; then
-              echo "Deleting $dirpath (older than $RETENTION_DAYS days and beyond keep-count)"
-              rm -rf "$dirpath"
+            dir_date=$(basename "$dirpath" | cut -d'_' -f1)
+            dir_ts=$(date -d "$dir_date" +%s)
+            now_ts=$(date +%s)
+            age_days=$(( (now_ts - dir_ts) / 86400 ))
+            if [ "$age_days" -gt "$RETENTION_DAYS" ]; then
+                echo "Deleting $dirpath (older than $RETENTION_DAYS days and beyond keep-count)"
+                rm -rf "$dirpath"
             else
-              echo "Skipping $dirpath (within retention days)"
+                echo "Skipping $dirpath (within retention days)"
             fi
+          
           done
 
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain)" ]; then
             git add -A
             git commit -m "chore(reports): cleanup old reports (keep=${KEEP}, retention_days=${RETENTION_DAYS})"

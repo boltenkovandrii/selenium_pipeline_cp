@@ -5,8 +5,7 @@ Just a small demo project to show how some tools work together:
 - Selenium 
 - Selenium hub (only set up for pipeline)
 - Allure report
-- GitHub Actions
-Ported from GitLab using Copilot
+- GitHub Actions (ported from GitLab using Copilot)
 
 ### But what does it do?
 With this project you can run some of the provided tests on https://www.wikipedia.org/ both on your local machine and in CI (GitHub Actions).

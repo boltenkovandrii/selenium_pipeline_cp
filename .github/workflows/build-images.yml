@@ -21,6 +21,9 @@ on:
       base_edge_version:
         description: "Base image version for edge (selenium/node-edge). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
+  schedule:
+#    - cron: '0 0 * * 5' # Weekly (Friday 00:00 UTC)
+    - cron: '0 13 * * *' # test
 
 permissions:
   contents: read
@@ -50,7 +53,7 @@ jobs:
       - name: Checkout selected branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch }}
+          ref: ${{ github.event.inputs.branch  || 'main'}}
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
       - name: Resolve versions
@@ -98,25 +101,25 @@ jobs:
           }
 
           # Hub
-          hub_input='${{ github.event.inputs.base_hub_version }}'
+          hub_input='${{ github.event.inputs.base_hub_version || 'latest'}}'
           hub_out=$(decide "$hub_input" "selenium/hub")
           hub_version=$(echo "$hub_out" | sed -n '1p' | sed 's/^version://')
           hub_is_latest=$(echo "$hub_out" | sed -n '2p' | sed 's/^is_latest://')
 
           # Chrome
-          chrome_input='${{ github.event.inputs.base_chrome_version }}'
+          chrome_input='${{ github.event.inputs.base_chrome_version || 'latest'}}'
           chrome_out=$(decide "$chrome_input" "selenium/node-chrome")
           chrome_version=$(echo "$chrome_out" | sed -n '1p' | sed 's/^version://')
           chrome_is_latest=$(echo "$chrome_out" | sed -n '2p' | sed 's/^is_latest://')
 
           # Firefox
-          firefox_input='${{ github.event.inputs.base_firefox_version }}'
+          firefox_input='${{ github.event.inputs.base_firefox_version || 'latest'}}'
           firefox_out=$(decide "$firefox_input" "selenium/node-firefox")
           firefox_version=$(echo "$firefox_out" | sed -n '1p' | sed 's/^version://')
           firefox_is_latest=$(echo "$firefox_out" | sed -n '2p' | sed 's/^is_latest://')
 
           # Edge
-          edge_input='${{ github.event.inputs.base_edge_version }}'
+          edge_input='${{ github.event.inputs.base_edge_version || 'latest'}}'
           edge_out=$(decide "$edge_input" "selenium/node-edge")
           edge_version=$(echo "$edge_out" | sed -n '1p' | sed 's/^version://')
           edge_is_latest=$(echo "$edge_out" | sed -n '2p' | sed 's/^is_latest://')
