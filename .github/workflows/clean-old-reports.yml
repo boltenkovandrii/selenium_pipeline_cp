@@ -70,6 +70,9 @@ jobs:
           done
 
           if [ -n "$(git status --porcelain)" ]; then
+            # Configure commit author so the runner can create commits
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add -A
             git commit -m "chore(reports): cleanup old reports (keep=${KEEP}, retention_days=${RETENTION_DAYS})"
             git push origin HEAD:gh-pages
