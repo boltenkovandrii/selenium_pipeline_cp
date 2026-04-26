@@ -53,6 +53,26 @@ jobs:
               echo "Keeping $dirpath (within keep-count)"
               continue
             fi
+          
+          
+          
+          ##############
+          dir_date=$(basename "$dirpath" | cut -d'_' -f1)
+          dir_ts=$(date -d "$dir_date" +%s)
+          now_ts=$(date +%s)
+          
+          age_days=$(( (now_ts - dir_ts) / 86400 ))
+          
+          if [ "$age_days" -gt "$RETENTION_DAYS" ]; then
+            echo "Need to delete $dirpath"
+          else
+            echo "No need to delete $dirpath"
+          fi
+          
+          
+          #################
+          
+          
             # delete only if older than retention days
             if find "$dirpath" -maxdepth 0 -mtime +$RETENTION_DAYS | grep -q .; then
               echo "Deleting $dirpath (older than $RETENTION_DAYS days and beyond keep-count)"
