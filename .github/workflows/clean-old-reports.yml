@@ -55,17 +55,19 @@ jobs:
               continue
             fi
 
-          # delete only if older than retention days
-          dir_date=$(basename "$dirpath" | cut -d'_' -f1)
-          dir_ts=$(date -d "$dir_date" +%s)
-          now_ts=$(date +%s)
-          age_days=$(( (now_ts - dir_ts) / 86400 ))
-          if [ "$age_days" -gt "$RETENTION_DAYS" ]; then
-              echo "Deleting $dirpath (older than $RETENTION_DAYS days and beyond keep-count)"
-              rm -rf "$dirpath"
-          else
-              echo "Skipping $dirpath (within retention days)"
-          fi
+            # delete only if older than retention days
+            dir_date=$(basename "$dirpath" | cut -d'_' -f1)
+            dir_ts=$(date -d "$dir_date" +%s)
+            now_ts=$(date +%s)
+            age_days=$(( (now_ts - dir_ts) / 86400 ))
+            if [ "$age_days" -gt "$RETENTION_DAYS" ]; then
+                echo "Deleting $dirpath (older than $RETENTION_DAYS days and beyond keep-count)"
+                rm -rf "$dirpath"
+            else
+                echo "Skipping $dirpath (within retention days)"
+            fi
+          
+          done
 
           if [ -n "$(git status --porcelain)" ]; then
             git add -A
