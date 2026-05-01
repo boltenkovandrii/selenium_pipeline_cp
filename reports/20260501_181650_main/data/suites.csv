@@ -1,0 +1,8 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Fri May 01 18:16:20 UTC 2026","Fri May 01 18:16:25 UTC 2026","4682","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Correct search in English",""
+"failed","Fri May 01 18:16:28 UTC 2026","Fri May 01 18:16:31 UTC 2026","3218","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Redirecting to another page (test should fail)",""
+"passed","Fri May 01 18:16:20 UTC 2026","Fri May 01 18:16:26 UTC 2026","5686","","Link popup suite","","com.andrii.test.tests.CheckPopupTest","checkPopupTest","Open link popup",""
+"passed","Fri May 01 18:16:25 UTC 2026","Fri May 01 18:16:27 UTC 2026","2704","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Correct search in Dutch",""
+"passed","Fri May 01 18:16:29 UTC 2026","Fri May 01 18:16:46 UTC 2026","16048","","WikiMedia files suite","","com.andrii.test.tests.DownloadFileTest","downloadPdfFileTest","Download pdf file from WikiMedia",""
+"passed","Fri May 01 18:16:35 UTC 2026","Fri May 01 18:16:36 UTC 2026","1651","","Featured languages suite","","com.andrii.test.tests.FeaturedLanguagesTest","featuredLanguagesTest","Check list of featured languages",""
+"broken","Fri May 01 18:16:27 UTC 2026","Fri May 01 18:16:28 UTC 2026","652","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Attempt to search on non-existent language (test should fail)",""
