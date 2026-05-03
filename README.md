@@ -10,6 +10,7 @@ Just a small demo project to show how some tools work together:
 ### But what does it do?
 With this project you can run some of the provided tests on https://www.wikipedia.org/ both on your local machine and in CI (GitHub Actions).
 The tests themselves are not very meaningful and are provided for demonstration purposes only.
+Also, there are pipelines for building custom Hub/Chrome/Firefox/Edge images, and cleaning old data.
 
 # Project structure:
 Most important files, packages and directories are:
