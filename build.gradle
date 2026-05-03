@@ -1,3 +1,7 @@
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
+
 plugins {
     id 'java'
     id 'io.qameta.allure' version '2.12.0'
@@ -70,24 +74,31 @@ tasks.named("test") {
 }
 
 
+// Defining special task to distinguish between 'expected' and 'not expected' fails to show how errors will look at the report
+// in prod-like environment using @Tag or @Disabled would be a better option
 tasks.register("verifyExpectedFailures") {
     doLast {
         def failed = []
 
-        fileTree("build/test-results/test").matching {
-            include "*.xml"
-        }.each { file ->
-            def xml = new XmlSlurper().parse(file)
-
-            xml.testcase.findAll { tc -> tc.'failure'.size() > 0 || tc.'error'.size() > 0 }.each { tc ->
-                def className = tc.@classname.toString()
-                def testName = tc.@name.toString()
-
-                if (!testName.contains("test should fail")) {
-                    failed << "${className}: ${testName}"
+        def factory = DocumentBuilderFactory.newInstance()
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+        factory.setExpandEntityReferences(false)
+        def builder = factory.newDocumentBuilder()
+        def xpath = XPathFactory.newInstance().newXPath()
+        fileTree("build/test-results/test")
+                .matching { include "*.xml" }
+                .each { file ->
+                    def doc = builder.parse(file)
+                    def nodes = xpath.evaluate("//testcase[failure or error]", doc, XPathConstants.NODESET)
+                    for (int i=0; i<nodes.getLength(); i++) {
+                        def tc = nodes.item(i)
+                        def className = tc.getAttribute("classname")
+                        def testName = tc.getAttribute("name")
+                        if (!testName.contains("test should fail")) {
+                            failed << "${className}.${testName}"
+                        }
+                    }
                 }
-            }
-        }
 
         if (!failed.isEmpty()) {
             println "Unexpected test failures:"
