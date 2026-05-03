@@ -34,6 +34,11 @@ dependencies {
 
 }
 
+allure {
+    version = '2.21.0'  // The version of Allure Commandline tool
+}
+
+
 tasks.withType(JavaCompile).configureEach  {
     options.encoding = 'UTF-8' //To handle non-UTF characters
 }
@@ -48,9 +53,6 @@ test {
         includeTags System.getProperty("includeTags") ? System.getProperty("includeTags") : 'regression'
         excludeTags 'WIP'
     }
-
-    // Make failing tests do not fail the task
-//    ignoreFailures = true
 
     systemProperties = System.getProperties() as Map<String, ?>
     systemProperties.put('junit.jupiter.extensions.autodetection.enabled' , true)
@@ -67,6 +69,32 @@ tasks.named("test") {
     finalizedBy("allureReport")
 }
 
-allure {
-    version = '2.21.0'  // The version of Allure Commandline tool
+
+tasks.register("verifyExpectedFailures") {
+    doLast {
+        def failed = []
+
+        fileTree("build/test-results/test").matching {
+            include "*.xml"
+        }.each { file ->
+            def xml = new XmlSlurper().parse(file)
+
+            xml.testcase.findAll { tc -> tc.'failure'.size() > 0 || tc.'error'.size() > 0 }.each { tc ->
+                def className = tc.@classname.toString()
+                def testName = tc.@name.toString()
+
+                if (!testName.contains("test should fail")) {
+                    failed << "${className}: ${testName}"
+                }
+            }
+        }
+
+        if (!failed.isEmpty()) {
+            println "Unexpected test failures:"
+            failed.each { println it }
+            throw new GradleException("Unexpected test failures found")
+        }
+
+        println "Only expected failures occurred."
+    }
 }
