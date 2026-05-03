@@ -23,7 +23,7 @@ public class OpenPageTest extends TestBase {
     static Stream<Arguments> dataProvider() {
         return Stream.of(
                 arguments("English", "Lviv", "Lviv", "Correct search in English"),
-                arguments("Nederlands--", "Lviv", "Lviv", "Correct search in Dutch"),
+                arguments("Nederlands", "Lviv", "Lviv", "Correct search in Dutch"),
                 arguments("QQQ", "Lviv", "Lviv", "Attempt to search on non-existent language (test should fail)"),
                 arguments("English", "Lemberg", "Lemberg", "Redirecting to another page (test should fail)")
         );
