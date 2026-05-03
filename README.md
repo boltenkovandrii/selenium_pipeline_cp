@@ -27,8 +27,8 @@ Most important files, packages and directories are:
 - Update parameters at **src/test/resources/config.properties** especially **_browser_** and _**firefoxPath**_ (if you use Firefox). This step is optional and parameters can be overridden by command line options.
 - (Optional) Define the scope of the tests you want to run by annotating them with **@Tag("YOUR_TAG")**. By default, tests are run for **@Tag("regression")**, and all tests will be run.
 - Run tests with command line. Sample commands: 
-- [ ] **./gradlew clean test allureReport** - simplest command: all tests will be run according to parameters from **config.properties**
-- [ ] **./gradlew clean test -DincludeTags=current -Dbrowser=edge -Dthreads=2 allureReport** - only tests annotated with **@Tag("current")** will be run, using MS Edge. Tests will be run in 2 threads.
+- [ ] **./gradlew clean test** - simplest command: all tests will be run according to parameters from **config.properties**
+- [ ] **./gradlew clean test -DincludeTags=current -Dbrowser=edge -Dthreads=2** - only tests annotated with **@Tag("current")** will be run, using MS Edge. Tests will be run in 2 threads.
 - After run is finished, you can find generated report **build/reports/allure-report/allureReport**. To see it from IDE just use 'open in browser' option on index.html file from this directory. 
 
 # Running tests from GitHub

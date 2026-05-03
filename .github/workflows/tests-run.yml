@@ -90,7 +90,7 @@ jobs:
       - name: Run Gradle tests
         run: |
           chmod +x gradlew
-          ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test allureReport || true
+          ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test || true
 
       - name: Collect container logs
         run: |

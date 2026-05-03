@@ -4,13 +4,13 @@ Purpose: help future Copilot sessions understand how to build, run, and reason a
 
 ## Build, test and report commands
 - Full run (clean, tests, Allure report):
-  - Windows: .\gradlew.bat clean test allureReport
-  - Unix: ./gradlew clean test allureReport
+  - Windows: .\gradlew.bat clean test
+  - Unix: ./gradlew clean test
 - Run tests only: .\gradlew.bat test
 - Run a specific test class: .\gradlew.bat test --tests "com.andrii.test.tests.OpenPageTest"
 - Run a specific test method: .\gradlew.bat test --tests "com.andrii.test.tests.OpenPageTest.testMethodName"
 - Run tests with tag filtering (overrides default 'regression'):
-  - .\gradlew.bat clean test -DincludeTags=current allureReport
+  - .\gradlew.bat clean test -DincludeTags=current
 - Extra options commonly used:
   - -Dbrowser=edge  (browser selection)
   - -Dthreads=2     (parallel threads)
