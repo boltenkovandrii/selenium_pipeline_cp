@@ -50,7 +50,7 @@ test {
     }
 
     // Make failing tests do not fail the task
-    ignoreFailures = true
+//    ignoreFailures = true
 
     systemProperties = System.getProperties() as Map<String, ?>
     systemProperties.put('junit.jupiter.extensions.autodetection.enabled' , true)
@@ -61,6 +61,10 @@ test {
     systemProperties.put('junit.jupiter.execution.parallel.config.custom.class', 'com.andrii.test.base.ParallelExecutionStrategy')
 
 
+}
+
+tasks.named("test") {
+    finalizedBy("allureReport")
 }
 
 allure {
