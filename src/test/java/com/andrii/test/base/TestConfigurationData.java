@@ -1,12 +1,12 @@
 package com.andrii.test.base;
 
-import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration2.CompositeConfiguration;
 import org.openqa.selenium.WebDriver;
 
 public class TestConfigurationData {
 
-    private String browser;
-    private boolean useGrid;
+    private final String browser;
+    private final boolean useGrid;
     private WebDriver driver;
     private EventListener eventListener;
 

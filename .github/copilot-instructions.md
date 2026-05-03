@@ -4,13 +4,13 @@ Purpose: help future Copilot sessions understand how to build, run, and reason a
 
 ## Build, test and report commands
 - Full run (clean, tests, Allure report):
-  - Windows: .\gradlew.bat clean test allureReport
-  - Unix: ./gradlew clean test allureReport
+  - Windows: .\gradlew.bat clean test
+  - Unix: ./gradlew clean test
 - Run tests only: .\gradlew.bat test
 - Run a specific test class: .\gradlew.bat test --tests "com.andrii.test.tests.OpenPageTest"
 - Run a specific test method: .\gradlew.bat test --tests "com.andrii.test.tests.OpenPageTest.testMethodName"
 - Run tests with tag filtering (overrides default 'regression'):
-  - .\gradlew.bat clean test -DincludeTags=current allureReport
+  - .\gradlew.bat clean test -DincludeTags=current
 - Extra options commonly used:
   - -Dbrowser=edge  (browser selection)
   - -Dthreads=2     (parallel threads)
@@ -32,10 +32,24 @@ Notes:
   - Secrets: uses GITHUB_TOKEN by default; can be switched to a GHCR_PAT secret if needed
 
 - tests-run.yml
-  - Trigger: manual (workflow_dispatch)
-  - Purpose: pulls the images from ghcr.io, starts Selenium Grid via docker-compose, runs Gradle tests, produces Allure report, and uploads artifacts
-  - Inputs: browser, threads, tags, image-tag
-  - Artifacts: public-archives.tar.gz (contains Allure report and Downloads), container logs (uploaded separately)
+  - Trigger: manual (workflow_dispatch) and schedule (cron)
+  - Purpose: brings up a Selenium Grid (docker-compose) using images pulled from ghcr.io, runs Gradle tests against the grid, generates an Allure report, deploys the report to the gh-pages branch, and uploads public artifacts and container logs.
+  - Inputs: tags (test tag, default: regression), browser (chrome|firefox|edge, default: firefox), browser-image-tag (tag for browser images, default: latest), hub-image-tag (tag for hub image, default: latest), threads (parallel nodes, default: 2)
+  - Notes: logs into ghcr, sets per-browser image tags (only the selected browser uses the browser-image-tag), creates a docker network and scales browser nodes, runs ./gradlew with -DuseGrid=true -DincludeTags and produces build/reports/allure-report/allureReport which is published to reports/<timestamp_branch>/ on gh-pages via peaceiris/actions-gh-pages.
+  - Artifacts: public-archives-<report_dir>.tar.gz (contains Allure report and Downloads) and container-logs (uploaded separately).
+  - Permissions: contents: write, packages: read
+
+- clean-images.yml
+  - Trigger: manual (workflow_dispatch) and schedule (cron)
+  - Purpose: removes older container image package versions from GitHub Packages (ghcr) for the repository variants (-hub, -chrome, -firefox, -edge). Uses actions/delete-package-versions to delete untagged versions while keeping a configured minimum number of recent versions. Appends a cleanup summary to the job summary.
+  - Input: min_versions_to_keep (default: 5)
+  - Permissions: packages: write
+
+- clean-old-reports.yml
+  - Trigger: manual (workflow_dispatch) and schedule (cron)
+  - Purpose: cleans up old Allure report directories on the gh-pages branch. Keeps the configured number of most-recent reports and deletes older directories beyond retention-days, then commits and pushes changes back to gh-pages.
+  - Inputs: keep-count (default: 5), retention-days (default: 3)
+  - Permissions: contents: write
 
 ## High-level architecture
 - Test suite implemented in src/test/java:

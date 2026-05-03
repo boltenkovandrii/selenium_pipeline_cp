@@ -1,3 +1,7 @@
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
+
 plugins {
     id 'java'
     id 'io.qameta.allure' version '2.12.0'
@@ -23,16 +27,21 @@ dependencies {
 
     testImplementation 'org.seleniumhq.selenium:selenium-java:4.23.1'
 
-    testImplementation 'org.assertj:assertj-core:3.26.3'
+    testImplementation 'org.assertj:assertj-core:3.27.7'
 
+    testImplementation 'org.apache.commons:commons-configuration2:2.14.0'
+    testImplementation 'commons-beanutils:commons-beanutils:1.9.4'
 
-    testImplementation 'commons-configuration:commons-configuration:1.10'
-
-    testImplementation 'ch.qos.logback:logback-classic:1.5.6'
+    testImplementation 'ch.qos.logback:logback-classic:1.5.32'
 
     testImplementation 'io.qameta.allure:allure-junit5:2.21.0'
 
 }
+
+allure {
+    version = '2.21.0'  // The version of Allure Commandline tool
+}
+
 
 tasks.withType(JavaCompile).configureEach  {
     options.encoding = 'UTF-8' //To handle non-UTF characters
@@ -49,9 +58,6 @@ test {
         excludeTags 'WIP'
     }
 
-    // Make failing tests do not fail the task
-    ignoreFailures = true
-
     systemProperties = System.getProperties() as Map<String, ?>
     systemProperties.put('junit.jupiter.extensions.autodetection.enabled' , true)
     systemProperties.put('junit.jupiter.execution.parallel.enabled' , true)
@@ -63,6 +69,43 @@ test {
 
 }
 
-allure {
-    version = '2.21.0'  // The version of Allure Commandline tool
+tasks.named("test") {
+    finalizedBy("allureReport")
+}
+
+
+// Defining special task to distinguish between 'expected' and 'not expected' fails to show how errors will look at the report
+// in prod-like environment using @Tag or @Disabled would be a better option
+tasks.register("verifyExpectedFailures") {
+    doLast {
+        def failed = []
+
+        def factory = DocumentBuilderFactory.newInstance()
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+        factory.setExpandEntityReferences(false)
+        def builder = factory.newDocumentBuilder()
+        def xpath = XPathFactory.newInstance().newXPath()
+        fileTree("build/test-results/test")
+                .matching { include "*.xml" }
+                .each { file ->
+                    def doc = builder.parse(file)
+                    def nodes = xpath.evaluate("//testcase[failure or error]", doc, XPathConstants.NODESET)
+                    for (int i=0; i<nodes.getLength(); i++) {
+                        def tc = nodes.item(i)
+                        def className = tc.getAttribute("classname")
+                        def testName = tc.getAttribute("name")
+                        if (!testName.contains("test should fail")) {
+                            failed << "${className}.${testName}"
+                        }
+                    }
+                }
+
+        if (!failed.isEmpty()) {
+            println "Unexpected test failures:"
+            failed.each { println it }
+            throw new GradleException("Unexpected test failures found")
+        }
+
+        println "Only expected failures occurred."
+    }
 }
