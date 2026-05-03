@@ -97,15 +97,18 @@ jobs:
         run: ./gradlew verifyExpectedFailures
 
       - name: Collect container logs
+        if: always()
         run: |
           mkdir -p logs
           docker ps -a --format "{{.Names}}" | while read c; do docker logs "$c" > "logs/$c.log" || true; done || true
 
       - name: Tear down
+        if: always()
         run: |
           docker-compose down || true
 
       - name: Set report directory
+        if: always()
         id: set_report_dir
         run: |
           DATE=$(date -u +%Y%m%d_%H%M%S)
@@ -115,6 +118,7 @@ jobs:
           echo "report_dir=${REPORT_DIR}" >> $GITHUB_OUTPUT
 
       - name: Deploy Allure report to GitHub Pages
+        if: always()
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -122,6 +126,7 @@ jobs:
           destination_dir: reports/${{ steps.set_report_dir.outputs.report_dir }}
 
       - name: Publish report link
+        if: always()
         run: |
           REPORT_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ steps.set_report_dir.outputs.report_dir }}/"
           echo "## 🧪 Allure Report" >> $GITHUB_STEP_SUMMARY
@@ -129,6 +134,7 @@ jobs:
           echo "[Open Allure Report]($REPORT_URL)" >> $GITHUB_STEP_SUMMARY
 
       - name: Prepare public artifacts
+        if: always()
         run: |
           mkdir -p public/Downloads
           mkdir -p public/${{ steps.set_report_dir.outputs.report_dir }}/allureReport
@@ -137,6 +143,7 @@ jobs:
           tar -czf public-archives-${{ steps.set_report_dir.outputs.report_dir }}.tar.gz public/${{ steps.set_report_dir.outputs.report_dir }} || true
 
       - name: Upload artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: public-artifacts
@@ -144,6 +151,7 @@ jobs:
           retention-days: 3
 
       - name: Upload logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: container-logs
