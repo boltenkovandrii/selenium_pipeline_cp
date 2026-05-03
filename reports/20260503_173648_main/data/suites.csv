@@ -1,0 +1,8 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Sun May 03 17:36:27 UTC 2026","Sun May 03 17:36:43 UTC 2026","16119","","WikiMedia files suite","","com.andrii.test.tests.DownloadFileTest","downloadPdfFileTest","Download pdf file from WikiMedia",""
+"passed","Sun May 03 17:36:33 UTC 2026","Sun May 03 17:36:34 UTC 2026","1385","","Featured languages suite","","com.andrii.test.tests.FeaturedLanguagesTest","featuredLanguagesTest","Check list of featured languages",""
+"broken","Sun May 03 17:36:25 UTC 2026","Sun May 03 17:36:25 UTC 2026","608","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Attempt to search on non-existent language (test should fail)",""
+"passed","Sun May 03 17:36:22 UTC 2026","Sun May 03 17:36:25 UTC 2026","2501","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Correct search in Dutch",""
+"passed","Sun May 03 17:36:17 UTC 2026","Sun May 03 17:36:23 UTC 2026","5773","","Link popup suite","","com.andrii.test.tests.CheckPopupTest","checkPopupTest","Open link popup",""
+"failed","Sun May 03 17:36:25 UTC 2026","Sun May 03 17:36:29 UTC 2026","3512","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Redirecting to another page (test should fail)",""
+"passed","Sun May 03 17:36:18 UTC 2026","Sun May 03 17:36:22 UTC 2026","4710","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Correct search in English",""
