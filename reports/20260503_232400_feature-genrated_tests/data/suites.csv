@@ -1,0 +1,8 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"failed","Sun May 03 23:23:37 UTC 2026","Sun May 03 23:23:41 UTC 2026","3391","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Redirecting to another page (test should fail)",""
+"passed","Sun May 03 23:23:29 UTC 2026","Sun May 03 23:23:35 UTC 2026","5929","","Link popup suite","","com.andrii.test.tests.CheckPopupTest","checkPopupTest","Open link popup",""
+"passed","Sun May 03 23:23:29 UTC 2026","Sun May 03 23:23:34 UTC 2026","4952","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Correct search in English",""
+"passed","Sun May 03 23:23:39 UTC 2026","Sun May 03 23:23:55 UTC 2026","15896","","WikiMedia files suite","","com.andrii.test.tests.DownloadFileTest","downloadPdfFileTest","Download pdf file from WikiMedia",""
+"passed","Sun May 03 23:23:45 UTC 2026","Sun May 03 23:23:46 UTC 2026","1354","","Featured languages suite","","com.andrii.test.tests.FeaturedLanguagesTest","featuredLanguagesTest","Check list of featured languages",""
+"passed","Sun May 03 23:23:34 UTC 2026","Sun May 03 23:23:37 UTC 2026","2851","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Correct search in Dutch",""
+"broken","Sun May 03 23:23:37 UTC 2026","Sun May 03 23:23:37 UTC 2026","659","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Attempt to search on non-existent language (test should fail)",""
