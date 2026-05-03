@@ -88,11 +88,12 @@ jobs:
           docker ps --format "{{.Names}} {{.Image}}"
 
       - name: Run Gradle tests
+        continue-on-error: true
         run: |
           chmod +x gradlew
 #          ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test || true
           ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test
-        continue-on-error: true
+
 
       - name: Verify expected failures
 #        if: always()
