@@ -91,9 +91,10 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test || true
-          continue-on-error: true  
+        continue-on-error: true
 
       - name: Verify expected failures
+#        if: always()
         run: ./gradlew verifyExpectedFailures
 
       - name: Collect container logs
