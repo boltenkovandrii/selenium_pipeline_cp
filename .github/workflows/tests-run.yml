@@ -91,12 +91,11 @@ jobs:
         continue-on-error: true
         run: |
           chmod +x gradlew
-#          ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test || true
           ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test
 
 
       - name: Verify expected failures
-#        if: always()
+        if: always()
         run: ./gradlew verifyExpectedFailures
 
       - name: Collect container logs
