@@ -47,13 +47,13 @@ jobs:
       BROWSER_IMAGE_TAG: ${{ github.event.inputs['browser-image-tag'] || 'latest' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Login to ghcr
-        uses: docker/login-action@v2
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -146,7 +146,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: public-artifacts
           path: public-archives-${{ steps.set_report_dir.outputs.report_dir }}.tar.gz
@@ -154,7 +154,7 @@ jobs:
 
       - name: Upload logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: container-logs
           path: logs
