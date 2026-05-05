@@ -119,6 +119,9 @@ jobs:
           REPORT_DIR="${DATE}_${SANITIZED_BRANCH}"
           echo "report_dir=${REPORT_DIR}" >> $GITHUB_OUTPUT
 
+
+      # Uses old Node.js 20. Could be possible to rewrite using actions/upload-pages-artifact and actions/deploy-pages, but supporting multiple reports as pages looks tricky in this case.
+      # Sticking to peaceiris/actions-gh-pages@v4 so far
       - name: Deploy Allure report to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v4
