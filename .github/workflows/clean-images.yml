@@ -25,69 +25,77 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Delete old hub versions
-        uses: actions/delete-package-versions@v5
+      - name: Delete old package versions
         continue-on-error: true
-        with:
-          package-name: ${{ env.REPO }}-hub
-          package-type: container
-          min-versions-to-keep: ${{ env.MIN_KEEP }}
-          delete-only-untagged-versions: true
-
-      - name: Delete old chrome versions
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: ${{ env.REPO }}-chrome
-          package-type: container
-          min-versions-to-keep: ${{ env.MIN_KEEP }}
-          delete-only-untagged-versions: true
-
-      - name: Delete old firefox versions
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: ${{ env.REPO }}-firefox
-          package-type: container
-          min-versions-to-keep: ${{ env.MIN_KEEP }}
-          delete-only-untagged-versions: true
-
-      - name: Delete old edge versions
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: ${{ env.REPO }}-edge
-          package-type: container
-          min-versions-to-keep: ${{ env.MIN_KEEP }}
-          delete-only-untagged-versions: true
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          packages=(hub chrome firefox edge)
+          for p in "${packages[@]}"; do
+            pkg="${REPO}-${p}"
+            api_owner=orgs
+            # try orgs first, then users
+            if ! gh api -H "Accept: application/vnd.github+json" "/orgs/${OWNER}/packages/container/${pkg}/versions?per_page=100" > /tmp/out.$$ 2>/dev/null; then
+              api_owner=users
+              if ! gh api -H "Accept: application/vnd.github+json" "/users/${OWNER}/packages/container/${pkg}/versions?per_page=100" > /tmp/out.$$ 2>/dev/null; then
+                echo "${pkg}: not found or inaccessible"
+                continue
+              fi
+            fi
+            out=$(cat /tmp/out.$$)
+            # select untagged versions, sort newest first, keep MIN_KEEP newest, delete the rest
+            ids_to_delete=$(echo "${out}" | jq -r '.[] | select((.metadata.container.tags|length)==0) | "\(.created_at) \(.id)"' | sort -r | awk -v k=${MIN_KEEP} 'NR>k{print $2}')
+            if [ -z "${ids_to_delete}" ]; then
+              echo "${pkg}: nothing to delete"
+              continue
+            fi
+            for id in ${ids_to_delete}; do
+              echo "Deleting ${pkg} version ${id}"
+              if [ "${api_owner}" = "orgs" ]; then
+                gh api -X DELETE "/orgs/${OWNER}/packages/container/${pkg}/versions/${id}" || echo "delete failed for ${id}"
+              else
+                gh api -X DELETE "/users/${OWNER}/packages/container/${pkg}/versions/${id}" || echo "delete failed for ${id}"
+              fi
+            done
+          done
 
       - name: Summarize remaining package versions
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          echo "Generating cleanup summary..."
+          
+          echo "## Cleanup summary" >> "$GITHUB_STEP_SUMMARY"
+          
           packages=(hub chrome firefox edge)
-          summary=""
+          
           for p in "${packages[@]}"; do
             pkg="${REPO}-${p}"
-            # Try org endpoint first, then users
-            out=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/orgs/${OWNER}/packages/container/${pkg}/versions" || true)
-            if [ -z "$out" ] || echo "$out" | grep -q 'Not Found' || echo "$out" | grep -q 'Not Found'; then
-              out=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/users/${OWNER}/packages/container/${pkg}/versions" || true)
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "### ${pkg}" >> "$GITHUB_STEP_SUMMARY"
+          
+            api_owner="orgs"
+          
+            if ! out=$(gh api --paginate "/orgs/${OWNER}/packages/container/${pkg}/versions" 2>/dev/null); then
+              api_owner="users"
+              if ! out=$(gh api --paginate "/users/${OWNER}/packages/container/${pkg}/versions" 2>/dev/null); then
+                echo "- not found or inaccessible" >> "$GITHUB_STEP_SUMMARY"
+                continue
+              fi
             fi
-            if [ -z "$out" ] || [ "$out" = "null" ]; then
-              summary+="${pkg}: no info or inaccessible\n"
+          
+            count=$(echo "$out" | jq 'length')
+            if [ "$count" -eq 0 ]; then
+              echo "- no versions" >> "$GITHUB_STEP_SUMMARY"
               continue
             fi
-            # extract id and name for each version
-            versions=$(echo "$out" | jq -r '.[] | "id:\(.id) name:\(.name)"' | sed 's/$/\\n/')
-            if [ -z "$versions" ]; then
-              summary+="${pkg}: no versions\n"
-            else
-              summary+="${pkg}:\n${versions}\n"
-            fi
+          
+            echo "$out" | jq -r '
+              .[]
+              | "- id:\(.id) | tags:\(.metadata.container.tags | join(","))"
+            ' >> "$GITHUB_STEP_SUMMARY"
           done
-          echo -e "## Cleanup summary\n\n${summary}" >> $GITHUB_STEP_SUMMARY
 
