@@ -25,41 +25,41 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Delete old hub versions
-        uses: actions/delete-package-versions@v5
+      - name: Delete old package versions
         continue-on-error: true
-        with:
-          package-name: ${{ env.REPO }}-hub
-          package-type: container
-          min-versions-to-keep: ${{ env.MIN_KEEP }}
-          delete-only-untagged-versions: true
-
-      - name: Delete old chrome versions
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: ${{ env.REPO }}-chrome
-          package-type: container
-          min-versions-to-keep: ${{ env.MIN_KEEP }}
-          delete-only-untagged-versions: true
-
-      - name: Delete old firefox versions
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: ${{ env.REPO }}-firefox
-          package-type: container
-          min-versions-to-keep: ${{ env.MIN_KEEP }}
-          delete-only-untagged-versions: true
-
-      - name: Delete old edge versions
-        uses: actions/delete-package-versions@v5
-        continue-on-error: true
-        with:
-          package-name: ${{ env.REPO }}-edge
-          package-type: container
-          min-versions-to-keep: ${{ env.MIN_KEEP }}
-          delete-only-untagged-versions: true
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          packages=(hub chrome firefox edge)
+          for p in "${packages[@]}"; do
+            pkg="${REPO}-${p}"
+            api_owner=orgs
+            # try orgs first, then users
+            if ! gh api -H "Accept: application/vnd.github+json" "/orgs/${OWNER}/packages/container/${pkg}/versions?per_page=100" > /tmp/out.$$ 2>/dev/null; then
+              api_owner=users
+              if ! gh api -H "Accept: application/vnd.github+json" "/users/${OWNER}/packages/container/${pkg}/versions?per_page=100" > /tmp/out.$$ 2>/dev/null; then
+                echo "${pkg}: not found or inaccessible"
+                continue
+              fi
+            fi
+            out=$(cat /tmp/out.$$)
+            # select untagged versions, sort newest first, keep MIN_KEEP newest, delete the rest
+            ids_to_delete=$(echo "${out}" | jq -r '.[] | select((.metadata.container.tags|length)==0) | "\(.created_at) \(.id)"' | sort -r | awk -v k=${MIN_KEEP} 'NR>k{print $2}')
+            if [ -z "${ids_to_delete}" ]; then
+              echo "${pkg}: nothing to delete"
+              continue
+            fi
+            for id in ${ids_to_delete}; do
+              echo "Deleting ${pkg} version ${id}"
+              if [ "${api_owner}" = "orgs" ]; then
+                gh api -X DELETE "/orgs/${OWNER}/packages/container/${pkg}/versions/${id}" || echo "delete failed for ${id}"
+              else
+                gh api -X DELETE "/users/${OWNER}/packages/container/${pkg}/versions/${id}" || echo "delete failed for ${id}"
+              fi
+            done
+          done
 
       - name: Summarize remaining package versions
         shell: bash
