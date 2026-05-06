@@ -29,7 +29,7 @@ jobs:
         continue-on-error: true
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           packages=(hub chrome firefox edge)
@@ -64,30 +64,38 @@ jobs:
       - name: Summarize remaining package versions
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          echo "Generating cleanup summary..."
+          
+          echo "## Cleanup summary" >> "$GITHUB_STEP_SUMMARY"
+          
           packages=(hub chrome firefox edge)
-          summary=""
+          
           for p in "${packages[@]}"; do
             pkg="${REPO}-${p}"
-            # Try org endpoint first, then users
-            out=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/orgs/${OWNER}/packages/container/${pkg}/versions" || true)
-            if [ -z "$out" ] || echo "$out" | grep -q 'Not Found' || echo "$out" | grep -q 'Not Found'; then
-              out=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/users/${OWNER}/packages/container/${pkg}/versions" || true)
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "### ${pkg}" >> "$GITHUB_STEP_SUMMARY"
+          
+            api_owner="orgs"
+          
+            if ! out=$(gh api --paginate "/orgs/${OWNER}/packages/container/${pkg}/versions" 2>/dev/null); then
+              api_owner="users"
+              if ! out=$(gh api --paginate "/users/${OWNER}/packages/container/${pkg}/versions" 2>/dev/null); then
+                echo "- not found or inaccessible" >> "$GITHUB_STEP_SUMMARY"
+                continue
+              fi
             fi
-            if [ -z "$out" ] || [ "$out" = "null" ]; then
-              summary+="${pkg}: no info or inaccessible\n"
+          
+            count=$(echo "$out" | jq 'length')
+            if [ "$count" -eq 0 ]; then
+              echo "- no versions" >> "$GITHUB_STEP_SUMMARY"
               continue
             fi
-            # extract id and name for each version
-            versions=$(echo "$out" | jq -r '.[] | "id:\(.id) name:\(.name)"' | sed 's/$/\\n/')
-            if [ -z "$versions" ]; then
-              summary+="${pkg}: no versions\n"
-            else
-              summary+="${pkg}:\n${versions}\n"
-            fi
+          
+            echo "$out" | jq -r '
+              .[]
+              | "- id:\(.id) | tags:\(.metadata.container.tags | join(","))"
+            ' >> "$GITHUB_STEP_SUMMARY"
           done
-          echo -e "## Cleanup summary\n\n${summary}" >> $GITHUB_STEP_SUMMARY
 
