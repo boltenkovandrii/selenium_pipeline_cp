@@ -67,9 +67,9 @@ jobs:
             # Query Docker Hub tags and pick the highest semver-like tag.
             # For selenium/node-* images accept tags like 147.0-20260404 (version + hyphen + digits)
             if [[ "$repo" == selenium/node-* ]]; then
-              regex='^[0-9]+\.[0-9]+(-[0-9]+)?$'
+              regex='^[0-9]+\.[0-9]+-[0-9]?$'
             else
-               regex='^\d+\.\d+$'
+               regex='^[0-9]+(\.[0-9]+)*$'
             fi
             tag=$(curl -s "https://registry.hub.docker.com/v2/repositories/${repo}/tags?page_size=100" \
               | jq -r '.results[].name' \
