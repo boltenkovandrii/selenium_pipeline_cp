@@ -227,7 +227,7 @@ jobs:
           fi
       - name: Check GHCR for tags
         id: check
-        uses: actions/github-script@v7
+        uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           hub_tags: ${{ steps.compute_tags.outputs.hub_tags }}
