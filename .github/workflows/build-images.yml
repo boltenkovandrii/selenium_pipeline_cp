@@ -269,6 +269,7 @@ jobs:
                   const existing = new Set();
                   core.info(versions);
                   for (const v of versions) {
+                    core.info(JSON.stringify(v, null, 2));
                     core.info(v);
                     core.info(v.metadata);
                     core.info(v.metadata.container);
