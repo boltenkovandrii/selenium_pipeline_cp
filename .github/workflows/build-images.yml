@@ -79,7 +79,6 @@ jobs:
             if [ -z "$tag" ]; then
               tag=latest
             fi
-            echo "Anybody home?"
             echo "$tag"
           }
 
