@@ -260,6 +260,16 @@ jobs:
               core.info("tags: " + tags);
               core.info("owner: " + owner);
             
+              const response = await github.rest.packages.listPackageVersionsForUser({
+                username: owner,
+                package_type: 'container',
+                package_name: packageName
+              });
+              core.info("response.data: " + response.data);
+              //const versions = response.data;
+            
+            
+            
               if (!tags || tags.length === 0) return false;
               // only work with user endpoint
               // const tryOrg = async () => await github.paginate(github.rest.packages.listPackageVersionsForOrg, { org: owner, package_type: 'container', package_name: packageName });
