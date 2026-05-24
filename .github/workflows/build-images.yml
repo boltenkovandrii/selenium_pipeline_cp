@@ -68,7 +68,7 @@ jobs:
             # For selenium/node-* images accept tags like 147.0-20260404 (version + hyphen + digits)
             if [[ "$repo" == selenium/node-* ]]; then
 #              regex='^[0-9]+(\.[0-9]+)*(-[0-9]+)?$'
-              regex='^\d+\.\d+*-\d+$'
+              regex='^\d+\.\d+-\d+$'
             else
 #               regex='^[0-9]+(\.[0-9]+)*$'
                regex='^\d+\.\d+$'
