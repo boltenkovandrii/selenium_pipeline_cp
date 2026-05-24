@@ -266,6 +266,7 @@ jobs:
                 try {
                   const versions = await attempt();
                   const existing = new Set();
+                  core.info(versions);
                   for (const v of versions) {
                     const t = (v.metadata && v.metadata.container && v.metadata.container.tags) || [];        
                     core.info(t);
