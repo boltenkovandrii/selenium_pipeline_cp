@@ -12,18 +12,22 @@ on:
       base_hub_version:
         description: "Base image version for hub (selenium/hub). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
+        default: 'latest'
       base_chrome_version:
         description: "Base image version for chrome (selenium/node-chrome). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
+        default: 'latest'
       base_firefox_version:
         description: "Base image version for firefox (selenium/node-firefox). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
+        default: 'latest'
       base_edge_version:
         description: "Base image version for edge (selenium/node-edge). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
+        default: 'latest'
   schedule:
-    - cron: '0 0 * * 5' # Weekly (Friday 00:00 UTC)
-#    - cron: '0 13 * * *' # test
+#    - cron: '0 0 * * 5' # Weekly (Friday 00:00 UTC)
+    - cron: '0 13 * * *' # test
 
 permissions:
   contents: read
@@ -267,15 +271,13 @@ jobs:
                 try {
                   const versions = await attempt();
                   const existing = new Set();
-                  //core.info(versions);
                   for (const v of versions) {
-                    //core.info(JSON.stringify(v, null, 2));
-                    //core.info(v.metadata.container.tags);
                     const t = (v.metadata && v.metadata.container && v.metadata.container.tags) || [];        
-                    core.info(t);
+                    
                     for (const tag of t) existing.add(tag);
                   }
-                  
+            
+                  core.info("Existing tags: "+existing);
                   existing.delete('latest') //only interested in numeric versions
                   
                   for (const tag of tags) {
