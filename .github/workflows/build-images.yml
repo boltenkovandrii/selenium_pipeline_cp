@@ -276,7 +276,7 @@ jobs:
                     for (const tag of t) existing.add(tag);
                   }
                   
-                  existing.remove('latest') //only interested in numeric versions
+                  existing.delete('latest') //only interested in numeric versions
                   
                   for (const tag of tags) {
                     if (existing.has(tag)) return true;
