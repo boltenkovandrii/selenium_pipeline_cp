@@ -262,7 +262,7 @@ jobs:
             
               core.info(JSON.stringify(Object.keys(github.rest.packages), null, 2));
             
-              const response = await github.rest.packages.listPackageVersionsForUser({
+              const response = await github.rest.packages.getPackageVersionForUser({
                 username: owner,
                 package_type: 'container',
                 package_name: packageName
@@ -275,7 +275,7 @@ jobs:
               if (!tags || tags.length === 0) return false;
               // only work with user endpoint
               // const tryOrg = async () => await github.paginate(github.rest.packages.listPackageVersionsForOrg, { org: owner, package_type: 'container', package_name: packageName });
-              const tryUser = async () => await github.paginate(github.rest.packages.listPackageVersionsForUser, { username: owner, package_type: 'container', package_name: packageName });
+              const tryUser = async () => await github.paginate(github.rest.packages.getPackageVersionForUser, { username: owner, package_type: 'container', package_name: packageName });
 
               // const attempts = [tryOrg, tryUser];
               const attempts = [tryUser];
