@@ -267,11 +267,10 @@ jobs:
                   const versions = await attempt();
                   const existing = new Set();
                   for (const v of versions) {
-                    const t = (v.metadata && v.metadata.container && v.metadata.container.tags) || [];
+                    const t = (v.metadata && v.metadata.container && v.metadata.container.tags) || [];        
+                    core.info(t);
                     for (const tag of t) existing.add(tag);
                   }
-            
-                  core.info(existing);
             
                   for (const tag of tags) {
                     if (existing.has(tag)) return true;
