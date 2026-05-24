@@ -153,7 +153,7 @@ jobs:
       edge_exists: ${{ steps.check.outputs.edge_exists }}
     steps:
       - name: Checkout selected branch
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.inputs.branch }}
       - name: Compute tags to check
@@ -288,6 +288,11 @@ jobs:
               results.chrome = await checkPackageExists(`${repo}-chrome`, tagSets.chrome);
               results.firefox = await checkPackageExists(`${repo}-firefox`, tagSets.firefox);
               results.edge = await checkPackageExists(`${repo}-edge`, tagSets.edge);
+            
+              echo results.hub
+              echo results.chrome
+              echo results.firefox
+              echo results.edge
 
               core.setOutput('hub_exists', results.hub ? 'true' : 'false');
               core.setOutput('chrome_exists', results.chrome ? 'true' : 'false');
