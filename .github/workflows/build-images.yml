@@ -133,11 +133,167 @@ jobs:
           echo "edge_version=${edge_version}" >> $GITHUB_OUTPUT
           echo "edge_is_latest=${edge_is_latest}" >> $GITHUB_OUTPUT
 
+  check-images:
+    name: Check existing images in GHCR
+    needs: prepare
+    runs-on: ubuntu-latest
+    outputs:
+      hub_exists: ${{ steps.check.outputs.hub_exists }}
+      chrome_exists: ${{ steps.check.outputs.chrome_exists }}
+      firefox_exists: ${{ steps.check.outputs.firefox_exists }}
+      edge_exists: ${{ steps.check.outputs.edge_exists }}
+    steps:
+      - name: Checkout selected branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.inputs.branch }}
+      - name: Compute tags to check
+        id: compute_tags
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Hub
+          if [ -z "${{ needs.prepare.outputs.hub_version }}" ]; then
+            echo "hub_tags=" >> $GITHUB_OUTPUT
+          else
+            if [ "${{ needs.prepare.outputs.hub_is_latest }}" = "true" ]; then
+              echo "hub_tags<<EOF" >> $GITHUB_OUTPUT
+              echo "${{ needs.prepare.outputs.hub_version }}" >> $GITHUB_OUTPUT
+              echo "latest" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            else
+              echo "hub_tags<<EOF" >> $GITHUB_OUTPUT
+              echo "${{ needs.prepare.outputs.hub_version }}" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+          # Chrome
+          if [ -z "${{ needs.prepare.outputs.chrome_version }}" ]; then
+            echo "chrome_tags=" >> $GITHUB_OUTPUT
+          else
+            if [ "${{ needs.prepare.outputs.chrome_is_latest }}" = "true" ]; then
+              echo "chrome_tags<<EOF" >> $GITHUB_OUTPUT
+              echo "${{ needs.prepare.outputs.chrome_version }}" >> $GITHUB_OUTPUT
+              echo "latest" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            else
+              echo "chrome_tags<<EOF" >> $GITHUB_OUTPUT
+              echo "${{ needs.prepare.outputs.chrome_version }}" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+          # Firefox
+          if [ -z "${{ needs.prepare.outputs.firefox_version }}" ]; then
+            echo "firefox_tags=" >> $GITHUB_OUTPUT
+          else
+            if [ "${{ needs.prepare.outputs.firefox_is_latest }}" = "true" ]; then
+              echo "firefox_tags<<EOF" >> $GITHUB_OUTPUT
+              echo "${{ needs.prepare.outputs.firefox_version }}" >> $GITHUB_OUTPUT
+              echo "latest" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            else
+              echo "firefox_tags<<EOF" >> $GITHUB_OUTPUT
+              echo "${{ needs.prepare.outputs.firefox_version }}" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+          # Edge
+          if [ -z "${{ needs.prepare.outputs.edge_version }}" ]; then
+            echo "edge_tags=" >> $GITHUB_OUTPUT
+          else
+            if [ "${{ needs.prepare.outputs.edge_is_latest }}" = "true" ]; then
+              echo "edge_tags<<EOF" >> $GITHUB_OUTPUT
+              echo "${{ needs.prepare.outputs.edge_version }}" >> $GITHUB_OUTPUT
+              echo "latest" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            else
+              echo "edge_tags<<EOF" >> $GITHUB_OUTPUT
+              echo "${{ needs.prepare.outputs.edge_version }}" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            fi
+          fi
+      - name: Check GHCR for tags
+        id: check
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          hub_tags: ${{ steps.compute_tags.outputs.hub_tags }}
+          chrome_tags: ${{ steps.compute_tags.outputs.chrome_tags }}
+          firefox_tags: ${{ steps.compute_tags.outputs.firefox_tags }}
+          edge_tags: ${{ steps.compute_tags.outputs.edge_tags }}
+          script: |
+            const core = require('@actions/core');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            function parseTags(input) {
+              if (!input) return [];
+              return input.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+            }
+
+            const tagSets = {
+              hub: parseTags(core.getInput('hub_tags')),
+              chrome: parseTags(core.getInput('chrome_tags')),
+              firefox: parseTags(core.getInput('firefox_tags')),
+              edge: parseTags(core.getInput('edge_tags')),
+            };
+
+            async function checkPackageExists(packageName, tags) {
+              if (!tags || tags.length === 0) return false;
+              // Try org endpoint first, then user
+              const tryOrg = async () => await github.paginate(github.rest.packages.listPackageVersionsForOrg, { org: owner, package_type: 'container', package_name: packageName });
+              const tryUser = async () => await github.paginate(github.rest.packages.listPackageVersionsForUser, { username: owner, package_type: 'container', package_name: packageName });
+
+              const attempts = [tryOrg, tryUser];
+              for (const attempt of attempts) {
+                try {
+                  const versions = await attempt();
+                  const existing = new Set();
+                  for (const v of versions) {
+                    const t = (v.metadata && v.metadata.container && v.metadata.container.tags) || [];
+                    for (const tag of t) existing.add(tag);
+                  }
+                  for (const tag of tags) {
+                    if (existing.has(tag)) return true;
+                  }
+                  return false;
+                } catch (err) {
+                  if (err && err.status === 404) {
+                    // try next
+                    continue;
+                  }
+                  core.warning(`Error checking package ${packageName}: ${err}`);
+                  // On other errors, rethrow to fail the job
+                  throw err;
+                }
+              }
+              return false;
+            }
+
+            (async () => {
+              const results = {};
+              results.hub = await checkPackageExists(`${repo}-hub`, tagSets.hub);
+              results.chrome = await checkPackageExists(`${repo}-chrome`, tagSets.chrome);
+              results.firefox = await checkPackageExists(`${repo}-firefox`, tagSets.firefox);
+              results.edge = await checkPackageExists(`${repo}-edge`, tagSets.edge);
+
+              core.setOutput('hub_exists', results.hub ? 'true' : 'false');
+              core.setOutput('chrome_exists', results.chrome ? 'true' : 'false');
+              core.setOutput('firefox_exists', results.firefox ? 'true' : 'false');
+              core.setOutput('edge_exists', results.edge ? 'true' : 'false');
+            })();
+
+
+
   # Build jobs now run only when corresponding input is NOT empty
   build-hub:
-    if: ${{ github.event.inputs.base_hub_version != '' }}
+    if: ${{ github.event.inputs.base_hub_version != '' && needs.check-images.outputs.hub_exists != 'true' }}
     name: Build hub image
-    needs: prepare
+    needs: [prepare, check-images]
     runs-on: ubuntu-latest
     env:
       BASE_VERSION: ${{ needs.prepare.outputs.hub_version }}
@@ -184,9 +340,9 @@ jobs:
             BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-chrome:
-    if: ${{ github.event.inputs.base_chrome_version != '' }}
+    if: ${{ github.event.inputs.base_chrome_version != '' && needs.check-images.outputs.chrome_exists != 'true' }}
     name: Build chrome image
-    needs: prepare
+    needs: [prepare, check-images]
     runs-on: ubuntu-latest
     env:
       BASE_VERSION: ${{ needs.prepare.outputs.chrome_version }}
@@ -236,9 +392,9 @@ jobs:
             BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-firefox:
-    if: ${{ github.event.inputs.base_firefox_version != '' }}
+    if: ${{ github.event.inputs.base_firefox_version != '' && needs.check-images.outputs.firefox_exists != 'true' }}
     name: Build firefox image
-    needs: prepare
+    needs: [prepare, check-images]
     runs-on: ubuntu-latest
     env:
       BASE_VERSION: ${{ needs.prepare.outputs.firefox_version }}
@@ -285,9 +441,9 @@ jobs:
             BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-edge:
-    if: ${{ github.event.inputs.base_edge_version != '' }}
+    if: ${{ github.event.inputs.base_edge_version != '' && needs.check-images.outputs.edge_exists != 'true' }}
     name: Build edge image
-    needs: prepare
+    needs: [prepare, check-images]
     runs-on: ubuntu-latest
     env:
       BASE_VERSION: ${{ needs.prepare.outputs.edge_version }}
