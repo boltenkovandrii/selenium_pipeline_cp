@@ -243,6 +243,11 @@ jobs:
               return input.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
             }
 
+            core.info(core.getInput('hub_tags'))
+            core.info(core.getInput('chrome_tags'))
+            core.info(core.getInput('firefox_tags'))
+            core.info(core.getInput('edge_tags'))
+
             const tagSets = {
               hub: parseTags(core.getInput('hub_tags')),
               chrome: parseTags(core.getInput('chrome_tags')),
@@ -290,9 +295,9 @@ jobs:
               results.edge = await checkPackageExists(`${repo}-edge`, tagSets.edge);
             
               core.info(`results.hub = ${results.hub}`);
-              core.info(`results.hub = ${results.chrome}`);
-              core.info(`results.hub = ${results.firefox}`);
-              core.info(`results.hub = ${results.edge}`);
+              core.info(`results.chrome = ${results.chrome}`);
+              core.info(`results.firefox = ${results.firefox}`);
+              core.info(`results.edge = ${results.edge}`);
 
               core.setOutput('hub_exists', results.hub ? 'true' : 'false');
               core.setOutput('chrome_exists', results.chrome ? 'true' : 'false');
