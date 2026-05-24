@@ -256,23 +256,6 @@ jobs:
             };
 
             async function checkPackageExists(packageName, tags) {
-              core.info("packageName: " + packageName);
-              core.info("tags: " + tags);
-              core.info("owner: " + owner);
-            
-              core.info(JSON.stringify(Object.keys(github.rest.packages), null, 2));
-            
-              const response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
-                username: owner,
-                package_type: 'container',
-                package_name: packageName,
-                per_page: 100
-              });
-              core.info("response.data: " + response.data);
-              //const versions = response.data;
-            
-            
-            
               if (!tags || tags.length === 0) return false;
               // only work with user endpoint
               // const tryOrg = async () => await github.paginate(github.rest.packages.listPackageVersionsForOrg, { org: owner, package_type: 'container', package_name: packageName });
@@ -286,11 +269,8 @@ jobs:
                   const existing = new Set();
                   core.info(versions);
                   for (const v of versions) {
-                    core.info(JSON.stringify(v, null, 2));
-                    core.info(v);
-                    core.info(v.metadata);
-                    core.info(v.metadata.container);
-                    core.info(v.metadata.container.tags);
+                    //core.info(JSON.stringify(v, null, 2));
+                    //core.info(v.metadata.container.tags);
                     const t = (v.metadata && v.metadata.container && v.metadata.container.tags) || [];        
                     core.info(t);
                     for (const tag of t) existing.add(tag);
