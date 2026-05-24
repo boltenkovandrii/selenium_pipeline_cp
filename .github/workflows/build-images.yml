@@ -289,10 +289,10 @@ jobs:
               results.firefox = await checkPackageExists(`${repo}-firefox`, tagSets.firefox);
               results.edge = await checkPackageExists(`${repo}-edge`, tagSets.edge);
             
-              echo results.hub
-              echo results.chrome
-              echo results.firefox
-              echo results.edge
+              core.info(`results.hub = ${results.hub}`);
+              core.info(`results.hub = ${results.chrome}`);
+              core.info(`results.hub = ${results.firefox}`);
+              core.info(`results.hub = ${results.edge}`);
 
               core.setOutput('hub_exists', results.hub ? 'true' : 'false');
               core.setOutput('chrome_exists', results.chrome ? 'true' : 'false');
