@@ -124,6 +124,15 @@ jobs:
           edge_version=$(echo "$edge_out" | sed -n '1p' | sed 's/^version://')
           edge_is_latest=$(echo "$edge_out" | sed -n '2p' | sed 's/^is_latest://')
 
+          echo "hub_version=${hub_version}"
+          echo "hub_is_latest=${hub_is_latest}" 
+          echo "chrome_version=${chrome_version}"
+          echo "chrome_is_latest=${chrome_is_latest}"
+          echo "firefox_version=${firefox_version}"
+          echo "firefox_is_latest=${firefox_is_latest}"
+          echo "edge_version=${edge_version}"
+          echo "edge_is_latest=${edge_is_latest}"
+
           echo "hub_version=${hub_version}" >> $GITHUB_OUTPUT
           echo "hub_is_latest=${hub_is_latest}" >> $GITHUB_OUTPUT
           echo "chrome_version=${chrome_version}" >> $GITHUB_OUTPUT
