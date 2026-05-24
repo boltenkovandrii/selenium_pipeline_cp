@@ -257,11 +257,12 @@ jobs:
 
             async function checkPackageExists(packageName, tags) {
               if (!tags || tags.length === 0) return false;
-              // Try org endpoint first, then user
-              const tryOrg = async () => await github.paginate(github.rest.packages.listPackageVersionsForOrg, { org: owner, package_type: 'container', package_name: packageName });
+              // only work with user endpoint
+              // const tryOrg = async () => await github.paginate(github.rest.packages.listPackageVersionsForOrg, { org: owner, package_type: 'container', package_name: packageName });
               const tryUser = async () => await github.paginate(github.rest.packages.listPackageVersionsForUser, { username: owner, package_type: 'container', package_name: packageName });
 
-              const attempts = [tryOrg, tryUser];
+              // const attempts = [tryOrg, tryUser];
+              const attempts = [tryUser];
               for (const attempt of attempts) {
                 try {
                   const versions = await attempt();
