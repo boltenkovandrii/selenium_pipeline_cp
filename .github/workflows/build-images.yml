@@ -260,6 +260,8 @@ jobs:
               core.info("tags: " + tags);
               core.info("owner: " + owner);
             
+              core.info(JSON.stringify(Object.keys(github.rest.packages), null, 2));
+            
               const response = await github.rest.packages.listPackageVersionsForUser({
                 username: owner,
                 package_type: 'container',
