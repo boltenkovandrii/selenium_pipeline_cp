@@ -256,6 +256,9 @@ jobs:
             };
 
             async function checkPackageExists(packageName, tags) {
+              core.info("packageName" + packageName);
+              core.info("tags" + tags);
+            
               if (!tags || tags.length === 0) return false;
               // only work with user endpoint
               // const tryOrg = async () => await github.paginate(github.rest.packages.listPackageVersionsForOrg, { org: owner, package_type: 'container', package_name: packageName });
