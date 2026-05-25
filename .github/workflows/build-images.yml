@@ -12,19 +12,15 @@ on:
       base_hub_version:
         description: "Base image version for hub (selenium/hub). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
-        default: 'latest'
       base_chrome_version:
         description: "Base image version for chrome (selenium/node-chrome). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
-        default: 'latest'
       base_firefox_version:
         description: "Base image version for firefox (selenium/node-firefox). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
-        default: 'latest'
       base_edge_version:
         description: "Base image version for edge (selenium/node-edge). Use empty to skip building and 'latest' to resolve highest numeric version"
         required: false
-        default: 'latest'
   schedule:
 #    - cron: '0 0 * * 5' # Weekly (Friday 00:00 UTC)
     - cron: '0 13 * * *' # test
@@ -304,10 +300,10 @@ jobs:
               results.firefox = await checkPackageExists(`${repo}-firefox`, tagSets.firefox);
               results.edge = await checkPackageExists(`${repo}-edge`, tagSets.edge);
             
-              core.info(`results.hub = ${results.hub}`);
-              core.info(`results.chrome = ${results.chrome}`);
-              core.info(`results.firefox = ${results.firefox}`);
-              core.info(`results.edge = ${results.edge}`);
+              core.info(`Hub version exists = ${results.hub}`);
+              core.info(`Chrome version exists = ${results.chrome}`);
+              core.info(`Firefox version exists = ${results.firefox}`);
+              core.info(`Edge version exists = ${results.edge}`);
 
               core.setOutput('hub_exists', results.hub ? 'true' : 'false');
               core.setOutput('chrome_exists', results.chrome ? 'true' : 'false');
