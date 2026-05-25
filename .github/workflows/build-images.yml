@@ -86,14 +86,15 @@ jobs:
           decide() {
             input_val="$1"
             repo="$2"
-            if [ -z "$input_val" ]; then
-              # empty -> skip building
-              echo "version:"
-              echo "is_latest:false"
-            elif [ "$input_val" = "latest" ]; then
+            # for the scheduled builds always try to build based on the latest version
+            if [ "${{ github.event_name }}" == "schedule" || "$input_val" = "latest"  ]; then
               resolved=$(resolve_latest "$repo")
               echo "version:$resolved"
               echo "is_latest:true"
+            elif [ -z "$input_val" ]; then
+              # empty -> skip building
+              echo "version:"
+              echo "is_latest:false"
             else
               echo "version:$input_val"
               echo "is_latest:false"
