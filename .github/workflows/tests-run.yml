@@ -24,8 +24,8 @@ on:
         required: true
         default: 'latest'
   schedule:
-#    - cron: '0 1 * * 5' # Weekly (Friday 01:00 UTC)
-    - cron: '0 15 * * *' # test
+    - cron: '0 1 * * 5' # Weekly (Friday 01:00 UTC)
+#    - cron: '0 15 * * *' # test
 
 
 jobs:
