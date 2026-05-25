@@ -274,7 +274,6 @@ jobs:
                     for (const tag of t) existing.add(tag);
                   }
             
-                  core.info("Existing tags: "+existing);
                   existing.delete('latest') //only interested in numeric versions
                   
                   for (const tag of tags) {
