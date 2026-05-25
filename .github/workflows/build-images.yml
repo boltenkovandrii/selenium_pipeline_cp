@@ -87,7 +87,7 @@ jobs:
             input_val="$1"
             repo="$2"
             # for the scheduled builds always try to build based on the latest version
-            if [ "${{ github.event_name }}" == "schedule" || "$input_val" == "latest"  ]; then
+            if [[ "${{ github.event_name }}" == "schedule" || "$input_val" == "latest"  ]]; then
               resolved=$(resolve_latest "$repo")
               echo "version:$resolved"
               echo "is_latest:true"
