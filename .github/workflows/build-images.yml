@@ -315,7 +315,7 @@ jobs:
 
   # Build jobs now run only when corresponding input is NOT empty
   build-hub:
-    if: ${{ github.event.inputs.base_hub_version != '' && needs.check-images.outputs.hub_exists != 'true' }}
+    if: ${{ ( github.event_name == 'schedule' || github.event.inputs.base_hub_version ) && needs.check-images.outputs.hub_exists != 'true' }}
     name: Build hub image
     needs: [prepare, check-images]
     runs-on: ubuntu-latest
@@ -364,7 +364,7 @@ jobs:
             BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-chrome:
-    if: ${{ github.event.inputs.base_chrome_version != '' && needs.check-images.outputs.chrome_exists != 'true' }}
+    if: ${{ ( github.event_name == 'schedule' || github.event.inputs.base_chrome_version ) && needs.check-images.outputs.chrome_exists != 'true' }}
     name: Build chrome image
     needs: [prepare, check-images]
     runs-on: ubuntu-latest
@@ -416,7 +416,7 @@ jobs:
             BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-firefox:
-    if: ${{ github.event.inputs.base_firefox_version != '' && needs.check-images.outputs.firefox_exists != 'true' }}
+    if: ${{ ( github.event_name == 'schedule' || github.event.inputs.base_firefox_version ) && needs.check-images.outputs.firefox_exists != 'true' }}
     name: Build firefox image
     needs: [prepare, check-images]
     runs-on: ubuntu-latest
@@ -465,7 +465,7 @@ jobs:
             BASE_VERSION=${{ env.BASE_VERSION }}
 
   build-edge:
-    if: ${{ github.event.inputs.base_edge_version != '' && needs.check-images.outputs.edge_exists != 'true' }}
+    if: ${{ ( github.event_name == 'schedule' || github.event.inputs.base_edge_version ) && needs.check-images.outputs.edge_exists != 'true' }}
     name: Build edge image
     needs: [prepare, check-images]
     runs-on: ubuntu-latest
