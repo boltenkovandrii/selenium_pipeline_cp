@@ -37,4 +37,4 @@ Most important files, packages and directories are:
 - Press "Run workflow", set variables for the build and start workflow
 - Project uses own images for Selenium hub and browser images based on official ones (mostly for demonstration purposes). You can select specific versions, but easier is just to run on latest.
 - After test if finished, Allure Report will be available on jobs page along with some other useful logs (needs ~1min to be prepared)  
-
+- Recent reports are stored in 'gh-pages' branch and could be accessed via URL's like this: https://boltenkovandrii.github.io/selenium_pipeline_cp/reports/20260529_051007_main/
