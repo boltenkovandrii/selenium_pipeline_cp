@@ -16,14 +16,14 @@ public abstract class TestBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestBase.class);
 
-    private TestConfigurationData data=null;
+    private TestConfigurationData data = null;
 
-    public TestConfigurationData getData(){
+    public TestConfigurationData getData() {
         return this.data;
     }
 
     @AfterEach
-    public void afterEach(){
+    public void afterEach() {
         try {
             data.getEventListener().makeScreenshot(data.getDriver(), "at the end of the test");
             data.getEventListener().makePageDump(data.getDriver(), data.getBrowser(), "page dump at the end of the test");
@@ -40,12 +40,12 @@ public abstract class TestBase {
 
 
     @BeforeAll
-    public void beforeAll(){
+    public void beforeAll() {
 
         data = new TestConfigurationData();
         data.setEventListener(new EventListener());
 
-        try{
+        try {
 
             WebDriver webDriver = WebDriverManager.init(data);
             data.getEventListener().setDriver(webDriver);
@@ -55,11 +55,10 @@ public abstract class TestBase {
             data.getDriver().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(90));
 
 
-        }catch(Exception e){
+        } catch (Exception e) {
             LOGGER.error("Error on setting configuration data", e);
         }
     }
 
 
 }
-

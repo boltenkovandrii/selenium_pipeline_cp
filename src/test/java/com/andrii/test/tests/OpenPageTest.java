@@ -19,7 +19,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 @DisplayName("Open page suite")
 public class OpenPageTest extends TestBase {
 
-
     static Stream<Arguments> dataProvider() {
         return Stream.of(
                 arguments("English", "Lviv", "Lviv", "Correct search in English"),
@@ -30,7 +29,7 @@ public class OpenPageTest extends TestBase {
     }
 
     @BeforeEach
-    public void openUrl(){
+    public void openUrl() {
         getData().getDriver().navigate().to(TestConfig.getConfiguration().getString("baseUrlWiki"));
     }
 

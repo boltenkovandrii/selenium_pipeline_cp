@@ -10,7 +10,7 @@ public class TestConfigurationData {
     private WebDriver driver;
     private EventListener eventListener;
 
-    public TestConfigurationData(){
+    public TestConfigurationData() {
         CompositeConfiguration config = TestConfig.getConfiguration();
         browser = config.getString("browser", "chrome");
         useGrid = config.getBoolean("useGrid", false);

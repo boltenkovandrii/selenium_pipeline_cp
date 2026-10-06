@@ -8,36 +8,36 @@ import org.openqa.selenium.support.ui.Select;
 
 public class CommonsMainPage extends PageBase {
 
-    @FindBy(id="vector-main-menu-dropdown")
+    @FindBy(id = "vector-main-menu-dropdown")
     private WebElement mainMenu;
 
-    @FindBy(id="mw-AnonymousI18N-picker")
+    @FindBy(id = "mw-AnonymousI18N-picker")
     private WebElement languageSelect;
 
-    @FindBy(id="searchInput")
-    private  WebElement searchInput;
+    @FindBy(id = "searchInput")
+    private WebElement searchInput;
 
-    @FindBy(css="div.vector-header-end button")
-    private  WebElement searchButton;
+    @FindBy(css = "div.vector-header-end button")
+    private WebElement searchButton;
 
 
     public CommonsMainPage(TestConfigurationData data) {
         super(data);
     }
 
-    public void waitForLoadingHook(){
+    public void waitForLoadingHook() {
         waitTillElementClickable(mainMenu);
     }
 
 
-    public CommonsMainPage selectLanguage(String language){
+    public CommonsMainPage selectLanguage(String language) {
         waitAndClick(mainMenu);
         Select searchLanguageSelect = new Select(this.languageSelect);
         searchLanguageSelect.selectByVisibleText(language);
         return new CommonsMainPage(data);
     }
 
-    public CommonsSearchResultPage performSearch(String searchPhrase){
+    public CommonsSearchResultPage performSearch(String searchPhrase) {
         waitAndSendKeys(searchInput, searchPhrase);
         waitAndClick(searchButton);
         return new CommonsSearchResultPage(data);
