@@ -25,6 +25,7 @@ public class CommonsMainPage extends PageBase {
         super(data);
     }
 
+    @Override
     public void waitForLoadingHook() {
         waitTillElementClickable(mainMenu);
     }

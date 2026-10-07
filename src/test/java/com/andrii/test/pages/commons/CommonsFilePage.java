@@ -18,6 +18,7 @@ public class CommonsFilePage extends PageBase {
          super(data);
      }
 
+     @Override
      public void waitForLoadingHook() {
          //implement if needed
      }

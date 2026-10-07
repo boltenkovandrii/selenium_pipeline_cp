@@ -16,7 +16,7 @@ import static com.andrii.test.base.FileUtils.waitForFile;
 
 
 @DisplayName("WikiMedia files suite")
-public class DownloadFileTest extends TestBase {
+class DownloadFileTest extends TestBase {
 
     private final String fileName = "ECHO_Ukraine_Editable_A4_Landscape.pdf";
 
@@ -24,7 +24,7 @@ public class DownloadFileTest extends TestBase {
     @Tag("current")
     @Tag("regression")
     @DisplayName("Download pdf file from WikiMedia")
-    public void downloadPdfFileTest() {
+    void downloadPdfFileTest() {
 
         getData().getDriver().navigate().to(TestConfig.getConfiguration().getString("baseUrlWiki"));
 

@@ -12,12 +12,12 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Featured languages suite")
-public class FeaturedLanguagesTest extends TestBase {
+class FeaturedLanguagesTest extends TestBase {
 
     @Test
     @Tag("regression")
     @DisplayName("Check list of featured languages")
-    public void featuredLanguagesTest() {
+    void featuredLanguagesTest() {
 
         getData().getDriver().navigate().to(TestConfig.getConfiguration().getString("baseUrlWiki"));
         MainPage mainPage = new MainPage(getData());

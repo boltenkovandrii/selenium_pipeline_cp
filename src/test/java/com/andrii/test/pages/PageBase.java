@@ -16,7 +16,8 @@ import java.time.Duration;
 
 
 public abstract class PageBase {
-    protected TestConfigurationData data;
+
+    protected final TestConfigurationData data;
 
     public PageBase(TestConfigurationData data) {
         this.data = data;
@@ -29,23 +30,23 @@ public abstract class PageBase {
         ((JavascriptExecutor) data.getDriver()).executeScript("arguments[0].scrollIntoView(true);", element);
     }
 
-    public boolean isElementPresent(final WebElement el) {
+    public boolean isElementPresent(final WebElement element) {
         try {
-            el.getTagName(); //just attempting to access element
+            element.getTagName(); //just attempting to access element
             return true;
         } catch (NoSuchElementException | StaleElementReferenceException e) {
             return false;
         }
     }
 
-    public void waitTillElementDisappear(final WebElement el) {
-        waitTillElementDisappear(el, new WebDriverWait(data.getDriver(), Duration.ofSeconds(10)));
+    public void waitTillElementDisappear(final WebElement element) {
+        waitTillElementDisappear(element, new WebDriverWait(data.getDriver(), Duration.ofSeconds(10)));
     }
 
-    public void waitTillElementDisappear(final WebElement el, WebDriverWait wait) {
+    public void waitTillElementDisappear(final WebElement element, WebDriverWait wait) {
         wait.until((ExpectedCondition<Boolean>) driver -> {
             try {
-                el.getTagName(); //just attempting to access element
+                element.getTagName(); //just attempting to access element
                 return false;
             } catch (NoSuchElementException | StaleElementReferenceException e) {
                 return true;
@@ -64,18 +65,18 @@ public abstract class PageBase {
 
     public abstract void waitForLoadingHook();
 
-    public void waitForPageReady() {
+    final protected void waitForPageReady() {
         new WebDriverWait(data.getDriver(), Duration.ofSeconds(30)).until(
-                webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete")
+                webDriver -> "complete".equals(((JavascriptExecutor) webDriver).executeScript("return document.readyState"))
         );
     }
 
-    public void waitAndClick(final WebElement el) {
+    public void waitAndClick(final WebElement element) {
         try {
-            waitTillElementClickable(el);
-            el.click();
+            waitTillElementClickable(element);
+            element.click();
         } catch (WebDriverException e) {
-            data.getEventListener().makeScreenshot(data.getDriver(), "Cannot click on element:" + el, e);
+            data.getEventListener().makeScreenshot(data.getDriver(), "Cannot click on element:" + element, e);
             throw e;
         }
     }

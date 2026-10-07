@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 @DisplayName("Open page suite")
-public class OpenPageTest extends TestBase {
+class OpenPageTest extends TestBase {
 
     static Stream<Arguments> dataProvider() {
         return Stream.of(
@@ -38,7 +38,7 @@ public class OpenPageTest extends TestBase {
     @MethodSource("dataProvider")
     @DisplayName("Perform search from the main page:")
     @ParameterizedTest(name = "{3}")
-    public void searchFromMainPageTest(String language, String request, String header, String description) {
+    void searchFromMainPageTest(String language, String request, String header, String description) {
 
         ArticlePage articlePage = new MainPage(getData())
                 .selectSearchLanguage(language)

@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public abstract class TestBase {
+public class TestBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestBase.class);
 

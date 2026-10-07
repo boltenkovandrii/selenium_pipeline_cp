@@ -25,6 +25,7 @@ public class ArticlePage extends PageBase {
          super(data);
      }
 
+     @Override
      public void waitForLoadingHook() {
          waitTillElementClickable(header);
      }

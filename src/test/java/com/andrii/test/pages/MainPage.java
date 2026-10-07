@@ -34,6 +34,7 @@ public class MainPage extends PageBase {
          super(data);
      }
 
+     @Override
      public void waitForLoadingHook() {
          waitTillElementClickable(searchInput);
      }

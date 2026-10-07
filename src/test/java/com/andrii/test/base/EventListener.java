@@ -33,12 +33,12 @@ public class EventListener implements WebDriverListener {
 
 
     @Override
-    public void beforeSendKeys(WebElement element, java.lang.CharSequence... keysToSend) {
+    public void beforeSendKeys(WebElement element, CharSequence... keysToSend) {
         highlightElement(driver, element);
     }
 
     @Override
-    public void afterSendKeys(WebElement element, java.lang.CharSequence... keysToSend) {
+    public void afterSendKeys(WebElement element, CharSequence... keysToSend) {
         try {
             makeScreenshot(driver, "After changing value of element " + element.getText());
         } catch (final StaleElementReferenceException e) {

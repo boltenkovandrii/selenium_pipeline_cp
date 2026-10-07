@@ -28,9 +28,27 @@ Most important files, packages and directories are:
 - Update parameters at **src/test/resources/config.properties** especially **_browser_** and _**firefoxPath**_ (if you use Firefox). This step is optional and parameters can be overridden by command line options.
 - (Optional) Define the scope of the tests you want to run by annotating them with **@Tag("YOUR_TAG")**. By default, tests are run for **@Tag("regression")**, and all tests will be run.
 - Run tests with command line. Sample commands: 
-- [ ] **./gradlew clean test** - simplest command: all tests will be run according to parameters from **config.properties**
-- [ ] **./gradlew clean test -DincludeTags=current -Dbrowser=edge -Dthreads=2** - only tests annotated with **@Tag("current")** will be run, using MS Edge. Tests will be run in 2 threads.
+```powershell
+ # Simplest command: all tests will be run according to parameters from **config.properties**
+ ./gradlew clean test
+ 
+ # only tests annotated with **@Tag("current")** will be run, using MS Edge. Tests will be run in 2 threads.
+ ./gradlew clean test -DincludeTags=current -Dbrowser=edge -Dthreads=2
+```
 - After run is finished, you can find generated report **build/reports/allure-report/allureReport**. To see it from IDE just use 'open in browser' option on index.html file from this directory. 
+
+# Code quality and formatting
+- Checkstyle is used to enforce code formatting and quality. The configuration is provided in `src/test/resources/checkstyle.xml` file.
+- PMD is used to enforce code quality and detect potential bugs. The configuration is provided in `src/test/resources/pmd.ruleset.xml` file.
+- Task `qualityCheck` runs both checkstyle and pmd checks, and will fail if any of the checks fail.
+- Commands for manual run of the quality checks:
+```powershell
+# Run checkstyle and pmd checks
+./gradlew qualityCheck 
+
+# Run quality checks and then tests (if quality checks pass)
+./gradlew clean check 
+```
 
 # Running tests from GitHub
 - Go to Actions and select "Run tests with Selenium Grid".
