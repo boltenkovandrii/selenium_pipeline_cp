@@ -96,11 +96,11 @@ public class WebDriverManager {
                  webDriver = new ChromeDriver(options);
              } else if ("edge".equals(data.getBrowser())) {
                  if (System.getProperty("os.name").contains("Windows")) {
-                     System.setProperty("webdriver.chrome.driver", "src/test/resources/drivers/win/msedgedriver.exe");
+                     System.setProperty("webdriver.edge.driver", "src/test/resources/drivers/win/msedgedriver.exe");
                  } else if (System.getProperty("os.name").contains("Linux")) {
-                     System.setProperty("webdriver.chrome.driver", "src/test/resources/drivers/linux/msedgedriver");
+                     System.setProperty("webdriver.edge.driver", "src/test/resources/drivers/linux/msedgedriver");
                  } else {
-                     System.setProperty("webdriver.chrome.driver", "src/test/resources/drivers/mac/msedgedriver");
+                     System.setProperty("webdriver.edge.driver", "src/test/resources/drivers/mac/msedgedriver");
                  }
 
                  EdgeOptions options = new EdgeOptions();

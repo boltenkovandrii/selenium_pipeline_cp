@@ -24,7 +24,7 @@ Most important files, packages and directories are:
 
 # Running tests on local machine:
 - Import project with your IDE
-- Update browser driver(s) at **src/test/resources/drivers** to match your browser(s) version. Drivers from git are probably outdated even if present.
+- Update browser driver(s) at **src/test/resources/drivers** to match your browser(s) version. Drivers from git are probably outdated even if present. You could use script **src/test/resources/UpdateDrivers.ps1** to download latest drivers. You can also download them manually from official sources.
 - Update parameters at **src/test/resources/config.properties** especially **_browser_** and _**firefoxPath**_ (if you use Firefox). This step is optional and parameters can be overridden by command line options.
 - (Optional) Define the scope of the tests you want to run by annotating them with **@Tag("YOUR_TAG")**. By default, tests are run for **@Tag("regression")**, and all tests will be run.
 - Run tests with command line. Sample commands: 
