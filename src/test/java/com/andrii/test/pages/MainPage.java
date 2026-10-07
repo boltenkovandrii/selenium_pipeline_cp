@@ -2,9 +2,9 @@ package com.andrii.test.pages;
 
 import com.andrii.test.base.TestConfigurationData;
 import com.andrii.test.pages.commons.CommonsMainPage;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.ui.Select;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +29,6 @@ public class MainPage extends PageBase {
      @FindBy(css = "button.banner__close")
      private WebElement bannerCloseButton;
 
-
      public MainPage(TestConfigurationData data) {
          super(data);
      }
@@ -44,8 +43,8 @@ public class MainPage extends PageBase {
      }
 
      public MainPage selectSearchLanguage(String language) {
-         Select searchLanguageSelect = new Select(this.searchLanguageSelect);
-         searchLanguageSelect.selectByVisibleText(language);
+         searchLanguageSelect.click();
+         searchLanguageSelect.findElement(By.xpath(".//option[text()='" + language + "']")).click();
          return this;
      }
 

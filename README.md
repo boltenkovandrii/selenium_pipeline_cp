@@ -34,6 +34,9 @@ Most important files, packages and directories are:
  
  # only tests annotated with **@Tag("current")** will be run, using MS Edge. Tests will be run in 2 threads.
  ./gradlew clean test -DincludeTags=current -Dbrowser=edge -Dthreads=2
+ 
+ # run specific test.
+ ./gradlew clean test --tests '*checkPopupTest'
 ```
 - After run is finished, you can find generated report **build/reports/allure-report/allureReport**. To see it from IDE just use 'open in browser' option on index.html file from this directory. 
 
