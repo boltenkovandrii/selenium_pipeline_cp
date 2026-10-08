@@ -4,21 +4,27 @@ import com.andrii.test.base.TestBase;
 import com.andrii.test.base.TestConfig;
 import com.andrii.test.pages.MainPage;
 import com.andrii.test.pages.commons.CommonsFilePage;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import static com.andrii.test.base.FileUtils.*;
+import static com.andrii.test.base.FileUtils.fileExists;
+import static com.andrii.test.base.FileUtils.getDownloadsPath;
+import static com.andrii.test.base.FileUtils.removeFile;
+import static com.andrii.test.base.FileUtils.waitForFile;
 
 
 @DisplayName("WikiMedia files suite")
-public class DownloadFileTest extends TestBase {
+class DownloadFileTest extends TestBase {
 
-    String fileName = "ECHO_Ukraine_Editable_A4_Landscape.pdf";
+    private final String fileName = "ECHO_Ukraine_Editable_A4_Landscape.pdf";
 
     @Test
     @Tag("current")
     @Tag("regression")
     @DisplayName("Download pdf file from WikiMedia")
-    public void downloadPdfFileTest() {
+    void downloadPdfFileTest() {
 
         getData().getDriver().navigate().to(TestConfig.getConfiguration().getString("baseUrlWiki"));
 
@@ -31,7 +37,7 @@ public class DownloadFileTest extends TestBase {
                 .selectFileType("pdf")
                 .openFirstResult();
 
-        String filePath = getDownloadsPath()+fileName;
+        String filePath = getDownloadsPath() + fileName;
         removeFile(filePath);
         commonsFilePage
                 .clickDownload()

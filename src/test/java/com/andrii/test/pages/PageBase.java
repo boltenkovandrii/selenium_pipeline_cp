@@ -1,7 +1,12 @@
 package com.andrii.test.pages;
 
 import com.andrii.test.base.TestConfigurationData;
-import org.openqa.selenium.*;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -11,36 +16,37 @@ import java.time.Duration;
 
 
 public abstract class PageBase {
-    protected TestConfigurationData data;
 
-    public PageBase(TestConfigurationData data){
+    protected final TestConfigurationData data;
+
+    public PageBase(TestConfigurationData data) {
         this.data = data;
         PageFactory.initElements(data.getDriver(), this);
         waitForPageReady();
         waitForLoadingHook();
     }
 
-    public void scrollToElement(WebElement element){
+    public void scrollToElement(WebElement element) {
         ((JavascriptExecutor) data.getDriver()).executeScript("arguments[0].scrollIntoView(true);", element);
     }
 
-    public boolean isElementPresent(final WebElement el) {
+    public boolean isElementPresent(final WebElement element) {
         try {
-            el.getTagName(); //just attempting to access element
+            element.getTagName(); //just attempting to access element
             return true;
         } catch (NoSuchElementException | StaleElementReferenceException e) {
             return false;
         }
     }
 
-    public void waitTillElementDisappear(final WebElement el) {
-        waitTillElementDisappear(el, new WebDriverWait(data.getDriver(), Duration.ofSeconds(10)));
+    public void waitTillElementDisappear(final WebElement element) {
+        waitTillElementDisappear(element, new WebDriverWait(data.getDriver(), Duration.ofSeconds(10)));
     }
 
-    public void waitTillElementDisappear(final WebElement el, WebDriverWait wait) {
+    public void waitTillElementDisappear(final WebElement element, WebDriverWait wait) {
         wait.until((ExpectedCondition<Boolean>) driver -> {
             try {
-                el.getTagName(); //just attempting to access element
+                element.getTagName(); //just attempting to access element
                 return false;
             } catch (NoSuchElementException | StaleElementReferenceException e) {
                 return true;
@@ -59,34 +65,34 @@ public abstract class PageBase {
 
     public abstract void waitForLoadingHook();
 
-    public void waitForPageReady(){
+    final protected void waitForPageReady() {
         new WebDriverWait(data.getDriver(), Duration.ofSeconds(30)).until(
-                webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete")
+                webDriver -> "complete".equals(((JavascriptExecutor) webDriver).executeScript("return document.readyState"))
         );
     }
 
-    public void waitAndClick(final WebElement el) {
+    public void waitAndClick(final WebElement element) {
         try {
-            waitTillElementClickable(el);
-            el.click();
+            waitTillElementClickable(element);
+            element.click();
         } catch (WebDriverException e) {
-            data.getEventListener().makeScreenshot(data.getDriver(), "Cannot click on element:" + el, e);
+            data.getEventListener().makeScreenshot(data.getDriver(), "Cannot click on element:" + element, e);
             throw e;
         }
     }
 
     public void waitAndSendKeys(WebElement el, String text) {
-        try{
+        try {
             if (text != null) {
                 waitTillElementClickable(el);
                 el.clear();
                 el.sendKeys(text);
             }
-        }catch(StaleElementReferenceException se){
-            data.getEventListener().makeScreenshot(data.getDriver(), "StaleElementReferenceException for "+el);
+        } catch (StaleElementReferenceException se) {
+            data.getEventListener().makeScreenshot(data.getDriver(), "StaleElementReferenceException for " + el);
             throw se;
-        }catch(TimeoutException te){
-            data.getEventListener().makeScreenshot(data.getDriver(), "TimeoutException for "+el);
+        } catch (TimeoutException te) {
+            data.getEventListener().makeScreenshot(data.getDriver(), "TimeoutException for " + el);
             throw te;
         }
     }

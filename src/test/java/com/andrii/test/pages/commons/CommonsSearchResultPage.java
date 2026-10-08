@@ -10,42 +10,43 @@ import java.util.List;
 
 public class CommonsSearchResultPage extends PageBase {
 
-    @FindBy(css="section#v-3 button[aria-owns='filemime__listbox']")
+    @FindBy(css = "section#v-3 button[aria-owns='filemime__listbox']")
     private WebElement otherMediaFileButton;
 
-    @FindBy(xpath="//button/span[text()='Other Media']/..")
-    private  WebElement otherMediaTab;
+    @FindBy(xpath = "//button/span[text()='Other Media']/..")
+    private WebElement otherMediaTab;
 
-    @FindBy(css="section#v-3 div.sdms-search-results h3 a")
+    @FindBy(css = "section#v-3 div.sdms-search-results h3 a")
     private List<WebElement> otherMediaResultList;
 
-    @FindBy(css="div.sdms-search-results__pending")
+    @FindBy(css = "div.sdms-search-results__pending")
     private WebElement loader;
 
     public CommonsSearchResultPage(TestConfigurationData data) {
         super(data);
     }
 
-    public void waitForLoadingHook(){
+    @Override
+    public void waitForLoadingHook() {
         //implement if needed
     }
 
-    public CommonsSearchResultPage selectFileType(String value){
+    public CommonsSearchResultPage selectFileType(String value) {
         waitAndClick(otherMediaFileButton);
-        waitAndClick(data.getDriver().findElement(By.xpath("//ul/li[text()='"+value+"']")));
+        waitAndClick(data.getDriver().findElement(By.xpath("//ul/li[text()='" + value + "']")));
         waitForPageReady();
         waitTillElementDisappear(loader);
         return new CommonsSearchResultPage(data);
     }
     
-    public CommonsSearchResultPage openOtherMedia(){
+    public CommonsSearchResultPage openOtherMedia() {
         waitTillElementClickable(otherMediaTab);
         waitAndClick(otherMediaTab);
         return new CommonsSearchResultPage(data);
     }
 
 
-    public CommonsFilePage openFirstResult(){
+    public CommonsFilePage openFirstResult() {
         waitAndClick(otherMediaResultList.get(0));
         return new CommonsFilePage(data);
     }

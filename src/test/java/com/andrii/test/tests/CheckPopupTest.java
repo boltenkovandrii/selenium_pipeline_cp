@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Test;
 
 
 @DisplayName("Link popup suite")
-public class CheckPopupTest extends TestBase {
+class CheckPopupTest extends TestBase {
 
     @Test
     @Tag("regression")
     @DisplayName("Open link popup")
-    public void checkPopupTest() {
+    void checkPopupTest() {
 
         getData().getDriver().navigate().to(TestConfig.getConfiguration().getString("baseUrlWiki"));
         ArticlePage articlePage = new MainPage(getData())

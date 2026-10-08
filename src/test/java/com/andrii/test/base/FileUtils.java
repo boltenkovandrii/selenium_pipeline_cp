@@ -14,10 +14,10 @@ public class FileUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 
-    public static String getDownloadsPath(){
-        if(TestConfig.getConfiguration().getBoolean("useGrid", false)){
+    public static String getDownloadsPath() {
+        if (TestConfig.getConfiguration().getBoolean("useGrid", false)) {
             return TestConfig.getConfiguration().getString("downloads") + separator;
-        }else{
+        } else {
             return System.getProperty("user.home") + separator + "Downloads" + separator;
         }
     }
@@ -30,13 +30,14 @@ public class FileUtils {
             LOGGER.error("Failed to remove file: ", e);
         }
     }
-    public static boolean fileExists(String path){
+
+    public static boolean fileExists(String path) {
         LOGGER.info("Checking if file exists: {}", path);
         return Files.exists(Paths.get(path), LinkOption.NOFOLLOW_LINKS);
     }
 
     public static void waitForFile(String path) {
-       waitForFile(path, 60, 1) ;
+        waitForFile(path, 60, 1);
     }
 
 

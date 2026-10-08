@@ -5,6 +5,8 @@ import javax.xml.xpath.XPathFactory
 plugins {
     id 'java'
     id 'io.qameta.allure' version '2.12.0'
+    id 'checkstyle'
+    id 'pmd'
 }
 
 group = 'com.andrii.test'
@@ -25,16 +27,16 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.0-M2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.0-M2'
 
-    testImplementation 'org.seleniumhq.selenium:selenium-java:4.23.1'
+    testImplementation 'org.seleniumhq.selenium:selenium-java:4.50.0'
 
     testImplementation 'org.assertj:assertj-core:3.27.7'
 
-    testImplementation 'org.apache.commons:commons-configuration2:2.14.0'
-    testImplementation 'commons-beanutils:commons-beanutils:1.9.4'
+    testImplementation 'org.apache.commons:commons-configuration2:2.15.1'
+    testImplementation 'commons-beanutils:commons-beanutils:1.11.0'
 
-    testImplementation 'ch.qos.logback:logback-classic:1.5.32'
+    testImplementation 'ch.qos.logback:logback-classic:1.6.5'
 
-    testImplementation 'io.qameta.allure:allure-junit5:2.21.0'
+    testImplementation 'io.qameta.allure:allure-junit5:2.35.5'
 
 }
 
@@ -45,6 +47,18 @@ allure {
 
 tasks.withType(JavaCompile).configureEach  {
     options.encoding = 'UTF-8' //To handle non-UTF characters
+}
+
+checkstyle {
+    toolVersion = '10.24.0'
+    configFile = file('src/test/resources/checkstyle.xml')
+}
+
+pmd {
+    toolVersion = '6.55.0'
+    consoleOutput = true
+    ruleSetFiles = files('src/test/resources/pmd.ruleset.xml')
+    ruleSets = []
 }
 
 test {
@@ -69,10 +83,16 @@ test {
 
 }
 
+
 tasks.named("test") {
     finalizedBy("allureReport")
 }
 
+tasks.register('qualityCheck') {
+    group = 'verification'
+    description = 'Runs static analysis checks without tests'
+    dependsOn checkstyleMain, checkstyleTest, pmdMain, pmdTest
+}
 
 // Defining special task to distinguish between 'expected' and 'not expected' fails to show how errors will look at the report
 // in prod-like environment using @Tag or @Disabled would be a better option
