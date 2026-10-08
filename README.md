@@ -1,11 +1,11 @@
 # What is this?
 Just a small demo project to show how some tools work together:
-- Java 
-- Junit5
+- Java 17
+- Junit6
 - Selenium 
 - Selenium hub (only set up for pipeline)
 - Allure report
-- GitHub Actions (ported from GitLab using Copilot)
+- GitHub Actions 
 
 ### But what does it do?
 With this project you can run some of the provided tests on https://www.wikipedia.org/ both on your local machine and in CI (GitHub Actions).
@@ -24,12 +24,11 @@ Most important files, packages and directories are:
 
 # Running tests on local machine:
 - Import project with your IDE
-- Update browser driver(s) at **src/test/resources/drivers** to match your browser(s) version. Drivers from git are probably outdated even if present. You could use script **src/test/resources/UpdateDrivers.ps1** to download latest drivers. You can also download them manually from official sources.
-- Update parameters at **src/test/resources/config.properties** especially **_browser_** and _**firefoxPath**_ (if you use Firefox). This step is optional and parameters can be overridden by command line options.
+- Update parameters at **src/test/resources/config.properties** especially **_browser_**. This step is optional and parameters can be overridden by command line options.
 - (Optional) Define the scope of the tests you want to run by annotating them with **@Tag("YOUR_TAG")**. By default, tests are run for **@Tag("regression")**, and all tests will be run.
 - Run tests with command line. Sample commands: 
 ```powershell
- # Simplest command: all tests will be run according to parameters from **config.properties**
+ # Simplest command: tests will be run according to default tags configuration (tagged with "regression" and not "WIP") and parameters from **config.properties**
  ./gradlew clean test
  
  # only tests annotated with **@Tag("current")** will be run, using MS Edge. Tests will be run in 2 threads.

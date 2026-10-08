@@ -1,6 +1,7 @@
 package com.andrii.test.base;
 
 import io.qameta.allure.Allure;
+import io.qameta.allure.AttachmentOptions;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.JavascriptExecutor;
@@ -85,20 +86,20 @@ public class EventListener implements WebDriverListener {
 
     public void makeScreenshot(WebDriver driver, String screenshotDescription) {
         TakesScreenshot ts = (TakesScreenshot) driver;
-        Allure.addAttachment("Screenshot " + screenshotDescription, "image/png", new ByteArrayInputStream(ts.getScreenshotAs(OutputType.BYTES)), "png");
+        Allure.attachment("Screenshot " + screenshotDescription, new ByteArrayInputStream(ts.getScreenshotAs(OutputType.BYTES)));
         LOGGER.info("Screenshot made: {} ", screenshotDescription);
     }
 
-    public void makePageDump(WebDriver driver, String browserName, String description) {
+    public void makePageDump(WebDriver driver, String browserName) {
 
-        Allure.addAttachment("Page source: ", "text/html", driver.getPageSource(), "html");
+        Allure.attachment("Page source: ", "text/html", driver.getPageSource(), AttachmentOptions.withFileExtension(".html"));
 
         if ("chrome".equals(browserName) || "edge".equals(browserName)) { //browser logs catching is not supported for firefox for now
             StringBuilder logs = new StringBuilder();
             for (LogEntry le : driver.manage().logs().get(LogType.BROWSER).getAll()) {
                 logs.append("\n").append(le.getMessage());
             }
-            Allure.addAttachment("Browser console logs", logs.toString());
+            Allure.attachment("Browser console logs", logs.toString());
         }
 
     }

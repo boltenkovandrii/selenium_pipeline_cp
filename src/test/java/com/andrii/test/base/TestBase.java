@@ -27,7 +27,7 @@ public class TestBase {
     public void afterEach() {
         try {
             data.getEventListener().makeScreenshot(data.getDriver(), "at the end of the test");
-            data.getEventListener().makePageDump(data.getDriver(), data.getBrowser(), "page dump at the end of the test");
+            data.getEventListener().makePageDump(data.getDriver(), data.getBrowser());
         } catch (final Exception e) {
             LOGGER.error("Error on logging. Presumably not a problem: {}", e.getMessage());
         }
