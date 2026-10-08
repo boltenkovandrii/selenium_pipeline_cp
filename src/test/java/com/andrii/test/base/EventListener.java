@@ -86,7 +86,7 @@ public class EventListener implements WebDriverListener {
 
     public void makeScreenshot(WebDriver driver, String screenshotDescription) {
         TakesScreenshot ts = (TakesScreenshot) driver;
-        Allure.attachment("Screenshot " + screenshotDescription, new ByteArrayInputStream(ts.getScreenshotAs(OutputType.BYTES)));
+        Allure.attachment("Screenshot " + screenshotDescription, "image/png", new ByteArrayInputStream(ts.getScreenshotAs(OutputType.BYTES)), AttachmentOptions.withFileExtension(".png"));
         LOGGER.info("Screenshot made: {} ", screenshotDescription);
     }
 

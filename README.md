@@ -1,7 +1,7 @@
 # What is this?
 Just a small demo project to show how some tools work together:
 - Java 17
-- Junit6
+- Junit 6
 - Selenium 
 - Selenium hub (only set up for pipeline)
 - Allure report
