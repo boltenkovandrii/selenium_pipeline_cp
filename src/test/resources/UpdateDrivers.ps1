@@ -15,7 +15,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 # Resolve the output directory relative to the current working directory.
-$OutputPath = [System.IO.Path]::GetFullPath($Path)
+$OutputPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
 
 Write-Host "Selenium driver updater"
 Write-Host "Output directory: $OutputPath"

@@ -87,11 +87,15 @@ jobs:
         run: |
           docker ps --format "{{.Names}} {{.Image}}"
 
+      - name: Run checkstyle and pmd checks
+        run: | 
+          ./gradlew qualityCheck
+
       - name: Run Gradle tests
         continue-on-error: true
         run: |
           chmod +x gradlew
-          ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean check
+          ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test
 
 
       - name: Verify expected failures
