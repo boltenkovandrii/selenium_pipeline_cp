@@ -19,6 +19,7 @@ import java.util.Collections;
 
 public class WebDriverManager {
 
+     private static final Duration SCRIPT_TIMEOUT = Duration.ofSeconds(60);
      public static WebDriver init(final TestConfigurationData data) throws MalformedURLException {
          WebDriver webDriver = null;
 
@@ -108,7 +109,7 @@ public class WebDriverManager {
              }
          }
 
-         webDriver.manage().timeouts().scriptTimeout(Duration.ofSeconds(60));
+         webDriver.manage().timeouts().scriptTimeout(SCRIPT_TIMEOUT);
          return webDriver;
      }
 

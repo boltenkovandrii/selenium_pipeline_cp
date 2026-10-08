@@ -13,6 +13,8 @@ import static java.io.File.separator;
 public class FileUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
+    private static final int WAIT_FOR_FILE_SECONDS = 60;
+    private static final long POLL_FOR_FILE_MILLISECONDS = 1000L;
 
     public static String getDownloadsPath() {
         if (TestConfig.getConfiguration().getBoolean("useGrid", false)) {
@@ -37,7 +39,7 @@ public class FileUtils {
     }
 
     public static void waitForFile(String path) {
-        waitForFile(path, 60, 1);
+        waitForFile(path, WAIT_FOR_FILE_SECONDS, 1);
     }
 
 
@@ -50,7 +52,7 @@ public class FileUtils {
                 return;
             }
             try {
-                Thread.sleep(pollSeconds * 1000L);
+                Thread.sleep(pollSeconds * POLL_FOR_FILE_MILLISECONDS);
                 waited = waited + pollSeconds;
             } catch (InterruptedException e) {
                 LOGGER.error("Exception on waiting for file: ", e);

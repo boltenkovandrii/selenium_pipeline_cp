@@ -49,8 +49,12 @@
         <module name="NoWhitespaceBefore"/>
         <module name="NoWhitespaceAfter"/>
 
+        <!-- Size Violations Checks -->
+        <module name="MethodLength"/>
+
         <!-- Misc -->
         <module name="TodoComment"/>
-    </module>
+        <module name="MagicNumber"/>
 
+    </module>
 </module>

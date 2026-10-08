@@ -15,6 +15,7 @@ import java.time.Duration;
 public class TestBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestBase.class);
+    private static final Duration PAGE_LOAD_TIMEOUT = Duration.ofSeconds(90);
 
     private TestConfigurationData data = null;
 
@@ -52,7 +53,7 @@ public class TestBase {
             WebDriver decoratedWebDriver = new EventFiringDecorator<>(data.getEventListener()).decorate(webDriver);
             data.setDriver(decoratedWebDriver);
             data.getDriver().manage().window().maximize();
-            data.getDriver().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(90));
+            data.getDriver().manage().timeouts().pageLoadTimeout(PAGE_LOAD_TIMEOUT);
 
 
         } catch (Exception e) {
