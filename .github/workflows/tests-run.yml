@@ -87,14 +87,17 @@ jobs:
         run: |
           docker ps --format "{{.Names}} {{.Image}}"
 
+      - name: Set up Gradle wrapper permissions
+        run: |
+          chmod +x gradlew
+
       - name: Run checkstyle and pmd checks
-        run: | 
+        run: |
           ./gradlew qualityCheck
 
       - name: Run Gradle tests
         continue-on-error: true
         run: |
-          chmod +x gradlew
           ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test
 
 
