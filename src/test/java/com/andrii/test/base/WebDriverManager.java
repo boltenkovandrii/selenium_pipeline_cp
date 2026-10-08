@@ -62,32 +62,12 @@ public class WebDriverManager {
 
          } else {
              if ("firefox".equals(data.getBrowser())) {
-                 if (System.getProperty("os.name").contains("Windows")) {
-                     System.setProperty("webdriver.gecko.driver", "src/test/resources/drivers/win/geckodriver.exe");
-                 } else if (System.getProperty("os.name").contains("Linux")) {
-                     System.setProperty("webdriver.gecko.driver", "src/test/resources/drivers/linux/geckodriver");
-                 } else {
-                     System.setProperty("webdriver.gecko.driver", "src/test/resources/drivers/mac/geckodriver");
-                 }
-
                  FirefoxOptions options = new FirefoxOptions();
-
-                 options.setBinary(TestConfig.getConfiguration().getString("firefoxPath", "C:\\Program Files\\Mozilla Firefox\\firefox.exe"));
-
                  FirefoxProfile profile = new FirefoxProfile();
                  profile.setPreference("pdfjs.disabled", true);  // disable the built-in PDF viewer
                  options.setProfile(profile);
-
                  webDriver = new FirefoxDriver(options);
              } else if ("chrome".equals(data.getBrowser())) {
-                 if (System.getProperty("os.name").contains("Windows")) {
-                     System.setProperty("webdriver.chrome.driver", "src/test/resources/drivers/win/chromedriver.exe");
-                 } else if (System.getProperty("os.name").contains("Linux")) {
-                     System.setProperty("webdriver.chrome.driver", "src/test/resources/drivers/linux/chromedriver");
-                 } else {
-                     System.setProperty("webdriver.chrome.driver", "src/test/resources/drivers/mac/chromedriver");
-                 }
-
                  ChromeOptions options = new ChromeOptions();
                  //reduces the chance that website will detect that browser is managed by Selenium (and will block access). TBH probably not needed now, but let it be.
                  options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
@@ -96,14 +76,6 @@ public class WebDriverManager {
                  options.addArguments("--disable-search-engine-choice-screen"); //to disable search engine suggestion on the browser start
                  webDriver = new ChromeDriver(options);
              } else if ("edge".equals(data.getBrowser())) {
-                 if (System.getProperty("os.name").contains("Windows")) {
-                     System.setProperty("webdriver.edge.driver", "src/test/resources/drivers/win/msedgedriver.exe");
-                 } else if (System.getProperty("os.name").contains("Linux")) {
-                     System.setProperty("webdriver.edge.driver", "src/test/resources/drivers/linux/msedgedriver");
-                 } else {
-                     System.setProperty("webdriver.edge.driver", "src/test/resources/drivers/mac/msedgedriver");
-                 }
-
                  EdgeOptions options = new EdgeOptions();
                  webDriver = new EdgeDriver(options);
              }
