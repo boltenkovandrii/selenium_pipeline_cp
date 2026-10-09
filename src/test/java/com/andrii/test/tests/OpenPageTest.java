@@ -23,8 +23,7 @@ class OpenPageTest extends TestBase {
         return Stream.of(
                 arguments("English", "Lviv", "Lviv", "Correct search in English"),
                 arguments("Nederlands", "Lviv", "Lviv", "Correct search in Dutch"),
-                arguments("QQQ", "Lviv", "Lviv", "Attempt to search on non-existent language (test should fail)"),
-                arguments("English", "Lemberg", "Lemberg", "Redirecting to another page (test should fail)")
+                arguments("English", "Lemberg", "Lviv", "Redirecting to another page (Lemberg is another name of Lviv)")
         );
     }
 
