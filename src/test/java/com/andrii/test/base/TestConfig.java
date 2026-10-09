@@ -8,9 +8,10 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
 public final class TestConfig {
-    private final CompositeConfiguration config;
+
     private static final TestConfig INSTANCE = new TestConfig();
 
+    private final CompositeConfiguration config;
 
     private TestConfig() {
         config = new CompositeConfiguration();

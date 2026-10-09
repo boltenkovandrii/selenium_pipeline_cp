@@ -38,7 +38,7 @@ public class CommonsSearchResultPage extends PageBase {
         waitTillElementDisappear(loader);
         return new CommonsSearchResultPage(data);
     }
-    
+
     public CommonsSearchResultPage openOtherMedia() {
         waitTillElementClickable(otherMediaTab);
         waitAndClick(otherMediaTab);

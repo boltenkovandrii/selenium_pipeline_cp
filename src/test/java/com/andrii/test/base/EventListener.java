@@ -61,12 +61,14 @@ public class EventListener implements WebDriverListener {
             // Actual error will break the test and final screenshot will be enough for the investigation.
             return;
         } else if (error.getClass().equals(NoSuchSessionException.class)) {
-            LOGGER.error("WebDriver error: session not found - sometimes occur on firefox driver closing - not an error in this case, but it is too late to make screenshot");
+            LOGGER.error("WebDriver error: session not found - sometimes occur on firefox driver closing - not an error in this case, " +
+                    "but it is too late to make screenshot");
         } else {
             try {
                 makeScreenshot(driver, "WebDriver error: ", error);
             } catch (WebDriverException we) {
-                LOGGER.error("Error on making screenshot. Can occur in rare cases for example if driver is closed already. Presumably not a problem: {}", e.getMessage());
+                LOGGER.error("Error on making screenshot. Can occur in rare cases for example if driver is closed already. Presumably not a problem: {}",
+                        e.getMessage());
             }
         }
     }
@@ -86,7 +88,10 @@ public class EventListener implements WebDriverListener {
 
     public void makeScreenshot(WebDriver driver, String screenshotDescription) {
         TakesScreenshot ts = (TakesScreenshot) driver;
-        Allure.attachment("Screenshot " + screenshotDescription, "image/png", new ByteArrayInputStream(ts.getScreenshotAs(OutputType.BYTES)), AttachmentOptions.withFileExtension(".png"));
+        Allure.attachment("Screenshot " + screenshotDescription,
+                "image/png",
+                new ByteArrayInputStream(ts.getScreenshotAs(OutputType.BYTES)),
+                AttachmentOptions.withFileExtension(".png"));
         LOGGER.info("Screenshot made: {} ", screenshotDescription);
     }
 
