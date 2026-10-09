@@ -102,14 +102,10 @@ jobs:
           ./gradlew qualityCheck
 
       - name: Run Gradle tests
-        continue-on-error: true
+        # continue-on-error: true
         run: |
           ./gradlew -DuseGrid=true -Dbrowser=$BROWSER -Dthreads=$THREADS -DincludeTags=$TAGS -Ddownloads=Downloads clean test
 
-
-      - name: Verify expected failures
-        if: always()
-        run: ./gradlew verifyExpectedFailures
 
       - name: Collect container logs
         if: always()
