@@ -5,6 +5,7 @@ import org.junit.platform.engine.support.hierarchical.ParallelExecutionConfigura
 import org.junit.platform.engine.support.hierarchical.ParallelExecutionConfigurationStrategy;
 
 public class ParallelExecutionStrategy implements ParallelExecutionConfigurationStrategy {
+    private static final int KEEP_ALIVE_SECONDS = 30;
     @Override
     public ParallelExecutionConfiguration createConfiguration(ConfigurationParameters configurationParameters) {
         return new ParallelExecutionConfiguration() {
@@ -30,7 +31,7 @@ public class ParallelExecutionStrategy implements ParallelExecutionConfiguration
 
             @Override
             public int getKeepAliveSeconds() {
-                return 30;
+                return KEEP_ALIVE_SECONDS;
             }
         };
     }

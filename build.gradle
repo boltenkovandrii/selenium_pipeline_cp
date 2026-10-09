@@ -4,7 +4,7 @@ import javax.xml.xpath.XPathFactory
 
 plugins {
     id 'java'
-    id 'io.qameta.allure' version '2.12.0'
+    id 'io.qameta.allure' version '4.3.0'
     id 'checkstyle'
     id 'pmd'
 }
@@ -23,9 +23,9 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0-M2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.0-M2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.0-M2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:6.1.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:6.1.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:6.1.3'
 
     testImplementation 'org.seleniumhq.selenium:selenium-java:4.50.0'
 
@@ -36,12 +36,13 @@ dependencies {
 
     testImplementation 'ch.qos.logback:logback-classic:1.6.5'
 
-    testImplementation 'io.qameta.allure:allure-junit5:2.35.5'
-
 }
 
 allure {
-    version = '2.21.0'  // The version of Allure Commandline tool
+    version = "3.16.1"
+    adapter {
+        allureJavaVersion = "3.0.0"
+    }
 }
 
 
@@ -92,40 +93,4 @@ tasks.register('qualityCheck') {
     group = 'verification'
     description = 'Runs static analysis checks without tests'
     dependsOn checkstyleMain, checkstyleTest, pmdMain, pmdTest
-}
-
-// Defining special task to distinguish between 'expected' and 'not expected' fails to show how errors will look at the report
-// in prod-like environment using @Tag or @Disabled would be a better option
-tasks.register("verifyExpectedFailures") {
-    doLast {
-        def failed = []
-
-        def factory = DocumentBuilderFactory.newInstance()
-        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
-        factory.setExpandEntityReferences(false)
-        def builder = factory.newDocumentBuilder()
-        def xpath = XPathFactory.newInstance().newXPath()
-        fileTree("build/test-results/test")
-                .matching { include "*.xml" }
-                .each { file ->
-                    def doc = builder.parse(file)
-                    def nodes = xpath.evaluate("//testcase[failure or error]", doc, XPathConstants.NODESET)
-                    for (int i=0; i<nodes.getLength(); i++) {
-                        def tc = nodes.item(i)
-                        def className = tc.getAttribute("classname")
-                        def testName = tc.getAttribute("name")
-                        if (!testName.contains("test should fail")) {
-                            failed << "${className}.${testName}"
-                        }
-                    }
-                }
-
-        if (!failed.isEmpty()) {
-            println "Unexpected test failures:"
-            failed.each { println it }
-            throw new GradleException("Unexpected test failures found")
-        }
-
-        println "Only expected failures occurred."
-    }
 }

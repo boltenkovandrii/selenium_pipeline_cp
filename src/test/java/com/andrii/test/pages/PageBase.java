@@ -18,6 +18,8 @@ import java.time.Duration;
 public abstract class PageBase {
 
     protected final TestConfigurationData data;
+    private final Duration waitDuration = Duration.ofSeconds(10);
+    private final Duration pageLoadWaitDuration = Duration.ofSeconds(30);
 
     public PageBase(TestConfigurationData data) {
         this.data = data;
@@ -40,7 +42,7 @@ public abstract class PageBase {
     }
 
     public void waitTillElementDisappear(final WebElement element) {
-        waitTillElementDisappear(element, new WebDriverWait(data.getDriver(), Duration.ofSeconds(10)));
+        waitTillElementDisappear(element, new WebDriverWait(data.getDriver(), waitDuration));
     }
 
     public void waitTillElementDisappear(final WebElement element, WebDriverWait wait) {
@@ -66,7 +68,7 @@ public abstract class PageBase {
     public abstract void waitForLoadingHook();
 
     final protected void waitForPageReady() {
-        new WebDriverWait(data.getDriver(), Duration.ofSeconds(30)).until(
+        new WebDriverWait(data.getDriver(), pageLoadWaitDuration).until(
                 webDriver -> "complete".equals(((JavascriptExecutor) webDriver).executeScript("return document.readyState"))
         );
     }

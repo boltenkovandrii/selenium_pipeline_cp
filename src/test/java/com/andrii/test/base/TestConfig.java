@@ -6,13 +6,10 @@ import org.apache.commons.configuration2.EnvironmentConfiguration;
 import org.apache.commons.configuration2.SystemConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class TestConfig {
     private final CompositeConfiguration config;
     private static final TestConfig INSTANCE = new TestConfig();
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestConfig.class.getName());
 
 
     private TestConfig() {
@@ -23,7 +20,7 @@ public final class TestConfig {
             Configurations configs = new Configurations();
             config.addConfiguration(configs.properties("config.properties"));
         } catch (ConfigurationException e) {
-            LOGGER.error("Failed to read configuration: ", e);
+            throw new IllegalStateException("Unable to load test configuration", e);
         }
     }
 
