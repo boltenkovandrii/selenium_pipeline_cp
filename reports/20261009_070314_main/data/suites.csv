@@ -1,0 +1,8 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Fri Oct 09 07:02:52 UTC 2026","Fri Oct 09 07:02:54 UTC 2026","2087","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Correct search in Dutch",""
+"failed","Fri Oct 09 07:02:55 UTC 2026","Fri Oct 09 07:02:58 UTC 2026","2871","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Redirecting to another page (test should fail)",""
+"passed","Fri Oct 09 07:02:49 UTC 2026","Fri Oct 09 07:02:53 UTC 2026","4445","","Link popup suite","","com.andrii.test.tests.CheckPopupTest","checkPopupTest","Open link popup",""
+"passed","Fri Oct 09 07:03:01 UTC 2026","Fri Oct 09 07:03:02 UTC 2026","1170","","Featured languages suite","","com.andrii.test.tests.FeaturedLanguagesTest","featuredLanguagesTest","Check list of featured languages",""
+"passed","Fri Oct 09 07:02:49 UTC 2026","Fri Oct 09 07:02:52 UTC 2026","3639","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Correct search in English",""
+"passed","Fri Oct 09 07:02:56 UTC 2026","Fri Oct 09 07:03:10 UTC 2026","13585","","WikiMedia files suite","","com.andrii.test.tests.DownloadFileTest","downloadPdfFileTest","Download pdf file from WikiMedia",""
+"broken","Fri Oct 09 07:02:54 UTC 2026","Fri Oct 09 07:02:55 UTC 2026","732","","Open page suite","","com.andrii.test.tests.OpenPageTest","searchFromMainPageTest","Perform search from the main page: Attempt to search on non-existent language (test should fail)",""
