@@ -67,7 +67,7 @@ public abstract class PageBase {
 
     public abstract void waitForLoadingHook();
 
-    final protected void waitForPageReady() {
+    protected final void waitForPageReady() {
         new WebDriverWait(data.getDriver(), pageLoadWaitDuration).until(
                 webDriver -> "complete".equals(((JavascriptExecutor) webDriver).executeScript("return document.readyState"))
         );

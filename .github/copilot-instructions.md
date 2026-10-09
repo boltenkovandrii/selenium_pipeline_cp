@@ -1,94 +1,69 @@
-# Copilot instructions for selenium_pipeline_cp
+# Copilot instructions
 
-Purpose: help future Copilot sessions understand how to build, run, and reason about this repository (Selenium + JUnit5 tests using Gradle and Allure).
+## Project purpose
 
-## Build, test and report commands
-- Full run (clean, tests, Allure report):
-  - Windows: .\gradlew.bat clean test
-  - Unix: ./gradlew clean test
-- Run tests only: .\gradlew.bat test
-- Run a specific test class: .\gradlew.bat test --tests "com.andrii.test.tests.OpenPageTest"
-- Run a specific test method: .\gradlew.bat test --tests "com.andrii.test.tests.OpenPageTest.testMethodName"
-- Run tests with tag filtering (overrides default 'regression'):
-  - .\gradlew.bat clean test -DincludeTags=current
-- Extra options commonly used:
-  - -Dbrowser=edge  (browser selection)
-  - -Dthreads=2     (parallel threads)
-  - -DfirefoxPath="C:\\path\\to\\firefox.exe"
+This repository demonstrates Selenium UI test execution infrastructure using Java, JUnit Jupiter, Gradle, Docker, Selenium Grid, GitHub Actions, and Allure Report.
 
-Notes:
-- Gradle wrapper is included; prefer ./gradlew / .\gradlew.bat.
-- Test task sets ignoreFailures=true in build.gradle (tests won't fail the Gradle task by default).
+The application under test is Wikipedia. The test suite is intentionally small. Prioritize reliable test execution, maintainable framework code, Docker configuration, CI behavior, and diagnostics over adding many test scenarios or technologies.
 
-## GitHub Actions workflows (added)
-- build-images.yml
-  - Trigger: manual (workflow_dispatch)
-  - Purpose: builds Docker images from dockerfiles/* and pushes to ghcr.io as:
-    - ghcr.io/<owner>/<repo>-hub:<tag>
-    - ghcr.io/<owner>/<repo>-chrome:<tag>
-    - ghcr.io/<owner>/<repo>-firefox:<tag>
-    - ghcr.io/<owner>/<repo>-edge:<tag>
-  - Input: image-tag
-  - Secrets: uses GITHUB_TOKEN by default; can be switched to a GHCR_PAT secret if needed
+## Build and test commands
 
-- tests-run.yml
-  - Trigger: manual (workflow_dispatch) and schedule (cron)
-  - Purpose: brings up a Selenium Grid (docker-compose) using images pulled from ghcr.io, runs Gradle tests against the grid, generates an Allure report, deploys the report to the gh-pages branch, and uploads public artifacts and container logs.
-  - Inputs: tags (test tag, default: regression), browser (chrome|firefox|edge, default: firefox), browser-image-tag (tag for browser images, default: latest), hub-image-tag (tag for hub image, default: latest), threads (parallel nodes, default: 2)
-  - Notes: logs into ghcr, sets per-browser image tags (only the selected browser uses the browser-image-tag), creates a docker network and scales browser nodes, runs ./gradlew with -DuseGrid=true -DincludeTags and produces build/reports/allure-report/allureReport which is published to reports/<timestamp_branch>/ on gh-pages via peaceiris/actions-gh-pages.
-  - Artifacts: public-archives-<report_dir>.tar.gz (contains Allure report and Downloads) and container-logs (uploaded separately).
-  - Permissions: contents: write, packages: read
+Use the Gradle Wrapper.
 
-- clean-images.yml
-  - Trigger: manual (workflow_dispatch) and schedule (cron)
-  - Purpose: removes older container image package versions from GitHub Packages (ghcr) for the repository variants (-hub, -chrome, -firefox, -edge). Uses actions/delete-package-versions to delete untagged versions while keeping a configured minimum number of recent versions. Appends a cleanup summary to the job summary.
-  - Input: min_versions_to_keep (default: 5)
-  - Permissions: packages: write
+* Run the default test suite: `./gradlew clean test`
+* Run static analysis: `./gradlew qualityCheck`
+* Run tests with a selected tag and browser: `./gradlew clean test -DincludeTags=current -Dbrowser=edge -Dthreads=2`
+* Run one test class: `./gradlew test --tests "com.andrii.test.tests.OpenPageTest"`
 
-- clean-old-reports.yml
-  - Trigger: manual (workflow_dispatch) and schedule (cron)
-  - Purpose: cleans up old Allure report directories on the gh-pages branch. Keeps the configured number of most-recent reports and deletes older directories beyond retention-days, then commits and pushes changes back to gh-pages.
-  - Inputs: keep-count (default: 5), retention-days (default: 3)
-  - Permissions: contents: write
+On Windows, use `.\gradlew.bat` when appropriate.
 
-## High-level architecture
-- Test suite implemented in src/test/java:
-  - com.andrii.test.tests — JUnit5 test scenarios
-  - com.andrii.test.pages — Page Object classes (PageObject pattern)
-  - com.andrii.test.pages.commons — shared page fragments
-  - com.andrii.test.base — test bootstrap and utilities (WebDriverManager, TestConfig, TestBase, ParallelExecutionStrategy, FileUtils, EventListener)
-- Resources in src/test/resources contain drivers, config.properties, and Allure configuration.
-- Reporting: Allure commandline is integrated via Gradle plugin; generated report lives at build/reports/allure-report/allureReport (open index.html).
-- CI: Dockerfiles/* and GitHub Actions workflows (.github/workflows) are used to build images and run tests in CI. Workflows push/pull images to ghcr.io.
+The default test tag is `regression`. Tests tagged `WIP` are excluded by the Gradle test configuration. The `includeTags` system property overrides the default included tag.
 
-## Key repository conventions
-- Test selection:
-  - Tests are annotated with @Tag; default tag is 'regression' (see build.gradle includeTags property).
-  - WIP tests are excluded via excludeTags 'WIP'.
-- Configuration precedence:
-  - src/test/resources/config.properties provides defaults but may be overridden by system properties passed to Gradle (-D...).
-  - Common system properties used: includeTags, browser, threads, firefoxPath
-- Parallelism:
-  - Custom ParallelExecutionStrategy (com.andrii.test.base.ParallelExecutionStrategy) controls JUnit parallel execution. Expect classes to run concurrently; tests use thread-safe setup in WebDriverManager.
-- Page Object pattern:
-  - Pages live under com.andrii.test.pages. Tests should interact with pages rather than raw WebDriver where possible.
-- Driver binaries:
-  - Drivers are placed in src/test/resources/drivers (for convenience) but are likely outdated; keep them updated locally or provide path to local/bundled driver via config.
-- Allure:
-  - Use Gradle task 'allureReport' to generate reports after tests. Allure properties in src/test/resources/allure.properties.
+Do not introduce special handling that allows unexpected test failures to pass silently. Preserve normal Gradle test failure behavior.
 
-## Files to consult when reasoning about behavior
-- build.gradle — core Gradle configuration, test task details, JUnit/Allure integration
-- src/test/resources/config.properties — runtime defaults for browsers and paths
-- src/test/java/com/andrii/test/base/WebDriverManager.java — how WebDriver instances are created and configured
-- src/test/java/com/andrii/test/base/ParallelExecutionStrategy.java — parallel execution rules
-- src/test/java/com/andrii/test/pages/* & tests/* — test flows and Page Objects
-- .github/workflows/build-images.yml — workflow to build and push Docker images to ghcr.io
-- .github/workflows/tests-run.yml — workflow to start Selenium Grid via docker-compose, run Gradle tests, and upload Allure + Downloads as artifacts
+## Framework conventions
 
-## Other assistant configs
-- No CLAUDE.md, AGENTS.md, .cursorrules, .windsurfrules, CONVENTIONS.md, or similar AI assistant config files detected. If added, include relevant bits here.
+* Test scenarios belong in `src/test/java/com/andrii/test/tests`.
+* Page Objects belong in `src/test/java/com/andrii/test/pages`.
+* Shared test infrastructure belongs in `src/test/java/com/andrii/test/base`.
+* Runtime defaults are defined in `src/test/resources/config.properties`.
+* Use Page Objects for browser interactions where appropriate.
+* Keep browser selection and local-versus-Grid execution configurable.
+* Preserve thread safety when changing WebDriver lifecycle or parallel execution.
+* Keep Allure reporting and failure diagnostics working when changing test lifecycle code.
 
----
+## Browser and Grid management
 
-Created by Copilot CLI guidance file. Keep concise; update if CI, report paths, or test conventions change.
+* Local browser sessions use Selenium WebDriver constructors and Selenium Manager.
+* Do not add browser driver binaries or driver-update scripts to the repository.
+* Do not introduce machine-specific browser or driver paths into shared configuration.
+* Remote sessions use `RemoteWebDriver` and Selenium Grid browser-node containers.
+* Dockerfiles are in `dockerfiles/`; the GitHub Actions Grid configuration is in `docker-compose-gh.yml`.
+
+## CI and reporting
+
+* `.github/workflows/tests-run.yml` runs Checkstyle and PMD before UI tests, starts Selenium Grid, collects container logs, publishes Allure reports, and uploads diagnostic artifacts.
+* `.github/workflows/build-images.yml` builds and publishes custom Grid and browser images to GHCR.
+* The image and report cleanup workflows manage historical resources.
+
+When modifying workflows, preserve the intended failure behavior. A test or quality-check failure must fail the relevant workflow step. Report and log collection should still run when possible.
+
+Do not assume that a successful report-upload step means the tests passed; check the test and quality-check steps separately.
+
+## Dependencies and configuration
+
+* Java toolchain: 17.
+* Build configuration: `build.gradle`.
+* Browser and Grid defaults: `src/test/resources/config.properties`.
+* Checkstyle rules: `src/test/resources/checkstyle.xml`.
+* PMD rules: `src/test/resources/pmd.ruleset.xml`.
+
+Use stable dependency versions. Avoid unrelated dependency upgrades and new tools unless they provide a clear benefit.
+
+## Change guidelines
+
+* Prefer small, focused changes.
+* Do not add technologies solely to increase the technology list.
+* Do not expand the Wikipedia test suite just to make it look larger.
+* Update the README when commands, workflows, configuration, or report paths change.
+* Never claim a build or test passed unless it was actually run and verified.
