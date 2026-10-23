@@ -65,6 +65,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
       - name: Install Docker Compose
         run: |
           sudo apt-get update -y
@@ -87,7 +93,7 @@ jobs:
           if [ "${BROWSER}" = "edge" ]; then EDGE_IMAGE_TAG="${BROWSER_IMAGE_TAG}"; else EDGE_IMAGE_TAG="latest"; fi
           export HUB_IMAGE_TAG="${HUB_IMAGE_TAG}"
           export CHROME_IMAGE_TAG FIREFOX_IMAGE_TAG EDGE_IMAGE_TAG
-          docker-compose -f docker-compose-gh.yml up --scale selenium-${BROWSER}=${THREADS} -d
+          docker compose -f docker-compose-gh.yml up --scale selenium-${BROWSER}=${THREADS} -d
 
       - name: Show running containers
         run: |
@@ -115,7 +121,7 @@ jobs:
       - name: Tear down
         if: always()
         run: |
-          docker-compose down || true
+          docker compose down || true
 
       - name: Set report directory
         if: always()
