@@ -32,7 +32,7 @@ class FeaturedLanguagesTest extends TestBase {
                         "Français",
                         "中文",
                         "Italiano",
-                        "Polski",
+                        "فارسی",
                         "Português");
 
     }
